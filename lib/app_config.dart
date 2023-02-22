@@ -1,15 +1,25 @@
 import 'dart:async';
 
-import 'blocs/bloc_drawer.dart';
+import 'package:flutter/cupertino.dart';
+import 'package:music_station/modules/classroom/ui/classroom_page.dart';
+import 'package:music_station/modules/home/bloc/home_bloc.dart';
+import 'package:music_station/modules/home/ui/home_page.dart';
+import 'package:music_station/modules/home/utils/home_bloc_factory.dart';
+import 'package:music_station/modules/login/blocs/login_bloc.dart';
+import 'package:music_station/modules/login/ui/page/login_page.dart';
+import 'package:music_station/modules/music_player/bloc/music_player_bloc.dart';
+import 'package:music_station/modules/music_player/ui/pages/music_player_page.dart';
+import 'package:music_station/modules/music_player/utils/music_player_bloc_factory.dart';
+import 'package:music_station/modules/not_found/ui/not_found_page.dart';
+import 'package:music_station/providers/session_service_factory.dart';
+import 'package:music_station/services/session_service.dart';
+
 import 'blocs/bloc_processing.dart';
 import 'blocs/bloc_responsive.dart';
-import 'blocs/bloc_secondary_drawer.dart';
 import 'blocs/navigator_bloc.dart';
 import 'blocs/onboarding_bloc.dart';
 import 'blocs/theme_bloc.dart';
 import 'entities/entity_bloc.dart';
-import 'modules/counter/blocs/counter_bloc.dart';
-import 'modules/counter/ui/page/counter_home_page.dart';
 import 'providers/my_app_navigator_provider.dart';
 import 'services/theme_config.dart';
 import 'services/theme_service.dart';
@@ -18,11 +28,7 @@ import 'ui/pages/my_onboarding_page.dart';
 /// Zona de configuración inicial
 final BlocCore blocCore = BlocCore();
 bool _init = false;
-FutureOr<void> testMe() async {
-  await Future.delayed(
-    const Duration(seconds: 2),
-  );
-}
+final SessionService _sessionService = SessionServiceFactory.get();
 
 void onboarding([
   Duration initialDelay = const Duration(seconds: 2),
@@ -30,114 +36,114 @@ void onboarding([
   /// Register modules to use
   /// Inicializamos el responsive y la ux del usuario
   if (!_init) {
-    blocCore.addBlocModule<ResponsiveBloc>(
-      ResponsiveBloc.name,
-      ResponsiveBloc(),
-    );
-    blocCore.addBlocModule<BlocProcessing>(
-      BlocProcessing.name,
-      BlocProcessing(),
-    );
-
-    blocCore.addBlocModule<DrawerMainMenuBloc>(
-      DrawerMainMenuBloc.name,
-      DrawerMainMenuBloc(),
-    );
-
-    blocCore.addBlocModule<CounterBloc>(
-      CounterBloc.name,
-      CounterBloc(),
-    );
-
-    /// register onboarding
-    blocCore.addBlocModule(
-      OnboardingBloc.name,
-      OnboardingBloc(
-        [
-          () {
-            blocCore.addBlocModule<DrawerSecondaryMenuBloc>(
-              DrawerSecondaryMenuBloc.name,
-              DrawerSecondaryMenuBloc(
-                blocCore.getBlocModule<ResponsiveBloc>(ResponsiveBloc.name),
-              ),
-            );
-          },
-          testMe,
-          testMe,
-          testMe,
-          testMe,
-          testMe,
-          () async {
-            //  blocCore
-            //      .getBlocModule<NavigatorBloc>(NavigatorBloc.name)
-            //      .setHomePage(
-            //        const MyHomePage(title: 'Onboarding cargado'),
-            //      );
-            /*
-            blocCore
-                .getBlocModule<NavigatorBloc>(NavigatorBloc.name)
-                .setHomePage(TestScreenIIPage(
-                  blocResponsive: blocCore
-                      .getBlocModule<ResponsiveBloc>(ResponsiveBloc.name),
-                ));
-            await Future.delayed(const Duration(milliseconds: 200), () {
-              blocCore
-                  .getBlocModule<NavigatorBloc>(NavigatorBloc.name)
-                  .update();
-            });
-            Future.delayed(const Duration(seconds: 10), () {
-              blocCore
-                  .getBlocModule<NavigatorBloc>(NavigatorBloc.name)
-                  .pushPage(
-                    'Test Widgets',
-                    TestScreenWidgetsPage(
-                      blocResponsive: blocCore
-                          .getBlocModule<ResponsiveBloc>(ResponsiveBloc.name),
-                      drawerSecondaryMenuBloc:
-                          blocCore.getBlocModule<DrawerSecondaryMenuBloc>(
-                              DrawerSecondaryMenuBloc.name),
-                    ),
-                  );
-            });
-*/
-            await Future.delayed(const Duration(seconds: 10), () {
-              blocCore
-                  .getBlocModule<NavigatorBloc>(NavigatorBloc.name)
-                  .setHomePage(
-                    const CounterHomePage(),
-                  );
-            });
-            await Future.delayed(const Duration(milliseconds: 200), () {
-              blocCore
-                  .getBlocModule<NavigatorBloc>(NavigatorBloc.name)
-                  .update();
-            });
-          }
-        ],
-      ),
-    );
-
-    blocCore.addBlocModule<ThemeBloc>(
-        ThemeBloc.name,
-        ThemeBloc(
-          ThemeService(
-              lightColorScheme: lightColorScheme,
-              darkColorScheme: darkColorScheme,
-              colorSeed: colorSeed),
-        ));
-    blocCore.addBlocModule(
-      NavigatorBloc.name,
-      NavigatorBloc(
-        myPageManager,
-        MyOnboardingPage(
-          onboardingBloc:
-              blocCore.getBlocModule<OnboardingBloc>(OnboardingBloc.name),
-          responsiveBloc:
-              blocCore.getBlocModule<ResponsiveBloc>(ResponsiveBloc.name),
-        ),
-      ),
-    );
-
+    _setDefaultBlocModules();
     _init = true;
+  }
+}
+
+Future<void> _setDefaultBlocModules() async {
+  blocCore.addBlocModule<ResponsiveBloc>(
+    ResponsiveBloc.name,
+    ResponsiveBloc(),
+  );
+
+  blocCore.addBlocModule<BlocProcessing>(
+    BlocProcessing.name,
+    BlocProcessing(),
+  );
+
+  blocCore.addBlocModule(
+      OnboardingBloc.name,
+      _createOnBoardingBloc(),
+  );
+
+  blocCore.addBlocModule<ThemeBloc>(
+      ThemeBloc.name,
+      ThemeBloc(
+        ThemeService(
+            lightColorScheme: lightColorScheme,
+            darkColorScheme: darkColorScheme,
+            colorSeed: colorSeed),
+      ));
+
+  blocCore.addBlocModule(
+    NavigatorBloc.name,
+    NavigatorBloc(
+      myPageManager,
+      MyOnboardingPage(
+        onboardingBloc:
+        blocCore.getBlocModule<OnboardingBloc>(OnboardingBloc.name),
+        responsiveBloc:
+        blocCore.getBlocModule<ResponsiveBloc>(ResponsiveBloc.name),
+      ),
+    ),
+  );
+
+  await _setSessionBasedBlocModules();
+  await _setSessionBasedAvailablePages();
+}
+
+Future<void> _setSessionBasedBlocModules() async {
+  if (!await _sessionService.isActive) {
+    blocCore.addBlocModule<LoginBloc>(LoginBloc.name, LoginBloc());
+    return;
+  }
+
+  blocCore.addBlocModule<HomeBloc>(
+      HomeBloc.name,
+      HomeBlocFactory.get()
+  );
+
+  blocCore.addBlocModule(
+      MusicPlayerBloc.name,
+      MusicPlayerBlocFactory.get()
+  );
+}
+
+Future<void> _setSessionBasedAvailablePages() async {
+  if (!await _sessionService.isActive) return;
+
+  Map<String, Widget> availablePages = {
+    MusicPlayerPage.name : MusicPlayerPage(
+      bloc: blocCore.getBlocModule<MusicPlayerBloc>(MusicPlayerBloc.name)
+    ),
+
+    ClassroomPage.name : const ClassroomPage()
+  };
+
+  blocCore.getBlocModule<NavigatorBloc>(NavigatorBloc.name)
+      .addPagesForDynamicLinksDirectory(availablePages);
+}
+
+OnboardingBloc _createOnBoardingBloc() {
+  return OnboardingBloc(
+    [
+      () async {
+        blocCore
+            .getBlocModule<NavigatorBloc>(NavigatorBloc.name)
+            .setHomePage( await _getInitialPage() );
+
+        blocCore
+            .getBlocModule<NavigatorBloc>(NavigatorBloc.name)
+            .update();
+      }
+    ],
+  );
+}
+
+Future<Widget> _getInitialPage() async {
+  try {
+    if(!await _sessionService.isActive) {
+      return const LoginPage();
+    }
+
+    return HomePage(
+      user: await _sessionService.currentUser,
+      bloc: blocCore.getBlocModule<HomeBloc>(HomeBloc.name),
+      musicPlayerBloc: blocCore.getBlocModule<MusicPlayerBloc>(MusicPlayerBloc.name)
+    );
+
+  } catch(_) {
+    return const NotFoundPage();
   }
 }
