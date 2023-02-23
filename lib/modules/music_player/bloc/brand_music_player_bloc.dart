@@ -1,15 +1,17 @@
 import 'dart:async';
 import 'dart:collection';
+import 'dart:ffi';
 
 import 'package:flutter/foundation.dart';
 import 'package:music_station/entities/entity_bloc.dart';
 import 'package:music_station/modules/music_player/repository/music_player_repository.dart';
 import 'package:music_station/modules/music_player/utils/music_player_state.dart';
+import 'package:youtube_player_iframe/youtube_player_iframe.dart';
 
 import '../../../app_config.dart';
 import '../../../blocs/navigator_bloc.dart';
 import '../entities/music_player.dart';
-import '../models/play_list_song.dart';
+import '../entities/play_list_song.dart';
 import 'music_player_bloc.dart';
 
 class BrandMusicPlayerBloc implements MusicPlayerBloc {
@@ -18,11 +20,21 @@ class BrandMusicPlayerBloc implements MusicPlayerBloc {
 
   BrandMusicPlayerBloc({required MusicPlayerRepository repository}) : _repository = repository {
     _listenMusicPlayerChanges();
+    controller = YoutubePlayerController(
+      params: const YoutubePlayerParams(
+        mute: false,
+        showControls: true,
+        showFullscreenButton: false,
+      ),
+    );
   }
 
   final BlocGeneral<MusicPlayer> _musicPlayerBloc = BlocGeneral(
       MusicPlayer(state: MusicPlayerState.closed)
   );
+
+  @override
+  late YoutubePlayerController controller;
 
   @override
   MusicPlayer get currentValue => _musicPlayerBloc.value;
@@ -37,16 +49,14 @@ class BrandMusicPlayerBloc implements MusicPlayerBloc {
   }
 
   Future<void> _getPlaylistSongs() async {
-    if (_songs.isEmpty) {
-      changeState(MusicPlayerState.changingSong);
-    }
-
     List<PlayListSong> songs = await _repository.getSongs();
     _songs.addAll(songs);
   }
 
   @override
   Future<void> start() async {
+    changeState(MusicPlayerState.open);
+
     await _getPlaylistSongs();
 
     if (_songs.isEmpty) {
@@ -57,13 +67,27 @@ class BrandMusicPlayerBloc implements MusicPlayerBloc {
     var song = _songs.first;
     _musicPlayerBloc.value = MusicPlayer(currentSong: song, state: MusicPlayerState.playing);
 
-    _songs.remove(song);
+    _startYoutubePlayer();
+  }
+
+  void _startYoutubePlayer() {
+    List<String> songsId = List.of(
+        _songs
+            .map((e) => e.getId())
+            .where((element) => element.isNotEmpty)
+    );
+
+    controller.loadPlaylist(
+      list: songsId,
+      listType: ListType.playlist,
+    );
   }
 
   @override
   Future<void> close() async {
     _songs.clear();
-    _musicPlayerBloc.value = MusicPlayer(state: MusicPlayerState.closed);
+    controller.close();
+    changeState(MusicPlayerState.closed);
   }
 
   @override
@@ -80,37 +104,25 @@ class BrandMusicPlayerBloc implements MusicPlayerBloc {
         ? MusicPlayerState.pause
         : MusicPlayerState.playing;
 
+    VoidCallback action = newState == MusicPlayerState.pause
+        ? controller.pauseVideo
+        : controller.playVideo;
+
     _musicPlayerBloc.value = MusicPlayer(
         currentSong: currentValue.currentSong,
         state: newState
     );
-  }
 
-  @override
-  void prepareBeforePresent() {
-    if (currentValue.isPlaying) {
-      changeState(MusicPlayerState.playingInForeground);
-      return;
-    }
-
-    if (currentValue.isPause) {
-      changeState(MusicPlayerState.pauseInForeground);
-    }
+    action();
   }
 
   @override
   void back() {
-    if (currentValue.isActive) {
-      MusicPlayerState newState = currentValue.isPlaying
-          ? MusicPlayerState.playingInBackground
-          : MusicPlayerState.pauseInBackground;
-
-      changeState(newState);
-    }
-
     blocCore.getBlocModule<NavigatorBloc>(NavigatorBloc.name).back();
   }
 
   @override
-  FutureOr<void> dispose() {}
+  FutureOr<void> dispose() {
+    _musicPlayerBloc.dispose();
+  }
 }

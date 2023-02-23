@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:music_station/modules/music_player/bloc/music_player_bloc.dart';
 import 'package:music_station/modules/music_player/entities/music_player.dart';
-import 'package:music_station/modules/music_player/utils/music_player_resources.dart';
 import 'package:music_station/modules/music_player/utils/music_player_state.dart';
+
+import '../widgets/floating_music_player_widget.dart';
 
 class MusicPlayerPage extends StatelessWidget {
   static String name = "musicPlayerPage";
+
+  static OverlayEntry? floatingMusicPlayer;
 
   final MusicPlayerBloc bloc;
 
@@ -24,12 +27,14 @@ class MusicPlayerPage extends StatelessWidget {
         child: StreamBuilder(
           stream: bloc.currentMusicPlayerStream,
           builder: (context, AsyncSnapshot<MusicPlayer> snapshot) {
+            WidgetsBinding.instance.addPostFrameCallback((_) => _handleFloatingMusicPlayerState(context));
 
             if (snapshot.data == null) return _buildInitialState();
 
             if (snapshot.data!.isPlaying || snapshot.data!.isPause) {
               return _buildPlayingState(snapshot.data);
-            } else if(snapshot.data?.state == MusicPlayerState.changingSong) {
+            } else if(snapshot.data?.state == MusicPlayerState.changingSong
+                || snapshot.data?.state == MusicPlayerState.open) {
               return _buildLoadingState();
             }
 
@@ -56,23 +61,10 @@ class MusicPlayerPage extends StatelessWidget {
 
         const SizedBox(height: 20),
 
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            IconButton(
-                onPressed: () => { bloc.handleButtonTap() },
-                icon: MusicPlayerResources.getIconBasedOnState(musicPlayer)
-            ),
-
-            IconButton(
-                onPressed: () => { bloc.close() },
-                icon: const Icon(Icons.close)
-            ),
-          ],
+        IconButton(
+          onPressed: () => { bloc.close() },
+          icon: const Icon(Icons.close)
         )
-
-
       ],
     );
   }
@@ -95,5 +87,33 @@ class MusicPlayerPage extends StatelessWidget {
         )
       ],
     );
+  }
+
+  void _handleFloatingMusicPlayerState(BuildContext context) {
+    if (bloc.currentValue.state == MusicPlayerState.open) {
+      _showFloatingMusicPlayer(context);
+      return;
+    }
+
+    if (bloc.currentValue.state == MusicPlayerState.closed) {
+      _hideFloatingMusicPlayer(context);
+    }
+  }
+
+  void _showFloatingMusicPlayer(BuildContext context) {
+    floatingMusicPlayer = OverlayEntry(
+        builder: (context) => FloatingMusicPlayer(bloc: bloc)
+    );
+
+    OverlayState overlay = Overlay.of(context);
+    overlay.insert(floatingMusicPlayer!);
+  }
+
+  void _hideFloatingMusicPlayer(BuildContext context) {
+    if (floatingMusicPlayer == null) return;
+
+    floatingMusicPlayer!.remove();
+    floatingMusicPlayer!.dispose();
+    floatingMusicPlayer = null;
   }
 }

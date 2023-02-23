@@ -139,8 +139,7 @@ Future<Widget> _getInitialPage() async {
 
     return HomePage(
       user: await _sessionService.currentUser,
-      bloc: blocCore.getBlocModule<HomeBloc>(HomeBloc.name),
-      musicPlayerBloc: blocCore.getBlocModule<MusicPlayerBloc>(MusicPlayerBloc.name)
+      bloc: blocCore.getBlocModule<HomeBloc>(HomeBloc.name)
     );
 
   } catch(_) {

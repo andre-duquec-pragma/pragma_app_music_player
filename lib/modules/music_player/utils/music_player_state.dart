@@ -2,10 +2,7 @@ enum MusicPlayerState {
   playing,
   pause,
   closed,
+  open,
   changingSong,
-  playingInForeground,
-  pauseInForeground,
-  playingInBackground,
-  pauseInBackground,
   notSongsAvailable
 }

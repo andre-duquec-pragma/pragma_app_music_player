@@ -1,4 +1,4 @@
-import 'package:music_station/modules/music_player/models/play_list_song.dart';
+import 'package:music_station/modules/music_player/entities/play_list_song.dart';
 
 abstract class MusicPlayerRepository {
   Future<List<PlayListSong>> getSongs();
