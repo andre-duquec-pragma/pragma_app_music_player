@@ -1,6 +1,6 @@
 import 'dart:async';
 import 'dart:collection';
-import 'dart:ffi';
+import 'dart:ui';
 
 import 'package:flutter/foundation.dart';
 import 'package:music_station/entities/entity_bloc.dart';
@@ -119,6 +119,24 @@ class BrandMusicPlayerBloc implements MusicPlayerBloc {
   @override
   void back() {
     blocCore.getBlocModule<NavigatorBloc>(NavigatorBloc.name).back();
+  }
+
+  @override
+  void handleAppLifecyclesChanges(AppLifecycleState newState) {
+    if(newState == AppLifecycleState.inactive && currentValue.isPlaying) {
+      handleAppInBackground();
+      return;
+    }
+
+    if(newState == AppLifecycleState.resumed && currentValue.isPlaying) {
+      controller.playVideo();
+    }
+  }
+
+  Future<void> handleAppInBackground() async {
+    await Future.delayed(const Duration(seconds: 1, milliseconds: 500), () {
+      controller.playVideo();
+    });
   }
 
   @override
