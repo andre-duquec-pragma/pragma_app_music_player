@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 class PlayListSong {
   final String url;
   final String name;
@@ -15,4 +17,9 @@ class PlayListSong {
 
     return videoId;
   }
+
+  Map<String, dynamic> toJSON() => {
+    "url" : url,
+    "name": name
+  };
 }

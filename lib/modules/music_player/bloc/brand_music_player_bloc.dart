@@ -10,6 +10,7 @@ import 'package:youtube_player_iframe/youtube_player_iframe.dart';
 
 import '../../../app_config.dart';
 import '../../../blocs/navigator_bloc.dart';
+import '../channel/music_player_method_channel.dart';
 import '../entities/music_player.dart';
 import '../entities/play_list_song.dart';
 import 'music_player_bloc.dart';
@@ -17,8 +18,12 @@ import 'music_player_bloc.dart';
 class BrandMusicPlayerBloc implements MusicPlayerBloc {
   final Queue<PlayListSong> _songs = Queue();
   final MusicPlayerRepository _repository;
+  final MusicPlayerMethodChannel _channel;
 
-  BrandMusicPlayerBloc({required MusicPlayerRepository repository}) : _repository = repository {
+  BrandMusicPlayerBloc({
+    required MusicPlayerRepository repository,
+    required MusicPlayerMethodChannel channel
+  }) : _repository = repository, _channel = channel {
     _listenMusicPlayerChanges();
     controller = YoutubePlayerController(
       params: const YoutubePlayerParams(
@@ -44,7 +49,7 @@ class BrandMusicPlayerBloc implements MusicPlayerBloc {
 
   void _listenMusicPlayerChanges() {
     currentMusicPlayerStream.listen((event) {
-      if (kDebugMode) { print("Music player update -> $event"); }
+      debugPrint("Music player update -> $event");
     });
   }
 
@@ -124,19 +129,25 @@ class BrandMusicPlayerBloc implements MusicPlayerBloc {
   @override
   void handleAppLifecyclesChanges(AppLifecycleState newState) {
     if(newState == AppLifecycleState.inactive && currentValue.isPlaying) {
-      handleAppInBackground();
+      _handleAppInBackground();
       return;
     }
 
     if(newState == AppLifecycleState.resumed && currentValue.isPlaying) {
-      controller.playVideo();
+      _handleAppInForeground();
     }
   }
 
-  Future<void> handleAppInBackground() async {
+  Future<void> _handleAppInBackground() async {
     await Future.delayed(const Duration(seconds: 1, milliseconds: 500), () {
       controller.playVideo();
+      _channel.prepareToReproduceInBackground(currentValue.currentSong);
     });
+  }
+
+  Future<void> _handleAppInForeground() async {
+    controller.playVideo();
+    _channel.prepareToReproduceInForeground();
   }
 
   @override
