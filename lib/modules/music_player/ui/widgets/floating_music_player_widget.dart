@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:music_station/modules/music_player/utils/music_player_resources.dart';
-import 'package:youtube_player_iframe/youtube_player_iframe.dart';
+import 'package:youtube_player_flutter/youtube_player_flutter.dart';
+// import 'package:youtube_player_iframe/youtube_player_iframe.dart';
 
 import '../../bloc/music_player_bloc.dart';
 import '../../entities/music_player.dart';
@@ -28,8 +29,7 @@ class FloatingMusicPlayer extends StatelessWidget {
                 controller: bloc.controller,
               ),
             ),
-
-            YoutubePlayerControllerProvider(controller: bloc.controller, child: const SizedBox()),
+            // YoutubePlayerControllerProvider(controller: bloc.controller, child: const SizedBox()),
 
             StreamBuilder<MusicPlayer>(
                 stream: bloc.currentMusicPlayerStream,

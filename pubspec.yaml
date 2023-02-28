@@ -38,7 +38,9 @@ dependencies:
   flutter_native_splash: ^2.2.16
   flutter_launcher_icons: ^0.11.0
   google_fonts: ^4.0.3
-  youtube_player_iframe: ^4.0.4
+  youtube_player_flutter: ^8.1.2
+  # youtube_player_iframe: ^4.0.4
+
 
 # configuracion Splash screen
 flutter_native_splash:

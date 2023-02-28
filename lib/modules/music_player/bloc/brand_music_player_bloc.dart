@@ -6,7 +6,8 @@ import 'package:flutter/foundation.dart';
 import 'package:music_station/entities/entity_bloc.dart';
 import 'package:music_station/modules/music_player/repository/music_player_repository.dart';
 import 'package:music_station/modules/music_player/utils/music_player_state.dart';
-import 'package:youtube_player_iframe/youtube_player_iframe.dart';
+import 'package:youtube_player_flutter/youtube_player_flutter.dart';
+// import 'package:youtube_player_iframe/youtube_player_iframe.dart';
 
 import '../../../app_config.dart';
 import '../../../blocs/navigator_bloc.dart';
@@ -18,20 +19,22 @@ class BrandMusicPlayerBloc implements MusicPlayerBloc {
   final Queue<PlayListSong> _songs = Queue();
   final MusicPlayerRepository _repository;
 
-  BrandMusicPlayerBloc({required MusicPlayerRepository repository}) : _repository = repository {
+  BrandMusicPlayerBloc({required MusicPlayerRepository repository})
+      : _repository = repository {
     _listenMusicPlayerChanges();
     controller = YoutubePlayerController(
-      params: const YoutubePlayerParams(
+      initialVideoId: '',
+      flags: const YoutubePlayerFlags(
         mute: false,
-        showControls: true,
-        showFullscreenButton: false,
+        hideControls: false,
+        hideThumbnail: true,
+        showLiveFullscreenButton: false,
       ),
     );
   }
 
-  final BlocGeneral<MusicPlayer> _musicPlayerBloc = BlocGeneral(
-      MusicPlayer(state: MusicPlayerState.closed)
-  );
+  final BlocGeneral<MusicPlayer> _musicPlayerBloc =
+      BlocGeneral(MusicPlayer(state: MusicPlayerState.closed));
 
   @override
   late YoutubePlayerController controller;
@@ -44,7 +47,9 @@ class BrandMusicPlayerBloc implements MusicPlayerBloc {
 
   void _listenMusicPlayerChanges() {
     currentMusicPlayerStream.listen((event) {
-      if (kDebugMode) { print("Music player update -> $event"); }
+      if (kDebugMode) {
+        print("Music player update -> $event");
+      }
     });
   }
 
@@ -65,37 +70,34 @@ class BrandMusicPlayerBloc implements MusicPlayerBloc {
     }
 
     var song = _songs.first;
-    _musicPlayerBloc.value = MusicPlayer(currentSong: song, state: MusicPlayerState.playing);
+    _musicPlayerBloc.value =
+        MusicPlayer(currentSong: song, state: MusicPlayerState.playing);
 
     _startYoutubePlayer();
   }
 
   void _startYoutubePlayer() {
     List<String> songsId = List.of(
-        _songs
-            .map((e) => e.getId())
-            .where((element) => element.isNotEmpty)
-    );
-
-    controller.loadPlaylist(
-      list: songsId,
-      listType: ListType.playlist,
-    );
+        _songs.map((e) => e.getId()).where((element) => element.isNotEmpty));
+    controller.load(YoutubePlayer.convertUrlToId(
+        'https://www.youtube.com/watch?v=xV7O26Emffc&ab_channel=GAWVIVEVO')!);
+    // controller.loadPlaylist(
+    //   list: songsId,
+    //   listType: ListType.playlist,
+    // );
   }
 
   @override
   Future<void> close() async {
     _songs.clear();
-    controller.close();
+    // controller.pause();
     changeState(MusicPlayerState.closed);
   }
 
   @override
   void changeState(MusicPlayerState newState) {
-    _musicPlayerBloc.value = MusicPlayer(
-        currentSong: currentValue.currentSong,
-        state: newState
-    );
+    _musicPlayerBloc.value =
+        MusicPlayer(currentSong: currentValue.currentSong, state: newState);
   }
 
   @override
@@ -104,16 +106,11 @@ class BrandMusicPlayerBloc implements MusicPlayerBloc {
         ? MusicPlayerState.pause
         : MusicPlayerState.playing;
 
-    VoidCallback action = newState == MusicPlayerState.pause
-        ? controller.pauseVideo
-        : controller.playVideo;
-
-    _musicPlayerBloc.value = MusicPlayer(
-        currentSong: currentValue.currentSong,
-        state: newState
-    );
-
-    action();
+    _musicPlayerBloc.value =
+        MusicPlayer(currentSong: currentValue.currentSong, state: newState);
+    newState == MusicPlayerState.pause
+        ? controller.pause()
+        : controller.play();
   }
 
   @override
