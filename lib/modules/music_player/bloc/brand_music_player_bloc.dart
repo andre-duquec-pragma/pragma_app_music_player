@@ -1,16 +1,16 @@
 import 'dart:async';
 import 'dart:collection';
-import 'dart:ffi';
+import 'dart:ui';
 
 import 'package:flutter/foundation.dart';
 import 'package:music_station/entities/entity_bloc.dart';
 import 'package:music_station/modules/music_player/repository/music_player_repository.dart';
 import 'package:music_station/modules/music_player/utils/music_player_state.dart';
 import 'package:youtube_player_flutter/youtube_player_flutter.dart';
-// import 'package:youtube_player_iframe/youtube_player_iframe.dart';
 
 import '../../../app_config.dart';
 import '../../../blocs/navigator_bloc.dart';
+import '../channel/music_player_method_channel.dart';
 import '../entities/music_player.dart';
 import '../entities/play_list_song.dart';
 import 'music_player_bloc.dart';
@@ -18,9 +18,12 @@ import 'music_player_bloc.dart';
 class BrandMusicPlayerBloc implements MusicPlayerBloc {
   final Queue<PlayListSong> _songs = Queue();
   final MusicPlayerRepository _repository;
+  final MusicPlayerMethodChannel _channel;
 
-  BrandMusicPlayerBloc({required MusicPlayerRepository repository})
-      : _repository = repository {
+  BrandMusicPlayerBloc({
+    required MusicPlayerRepository repository,
+    required MusicPlayerMethodChannel channel
+  }) : _repository = repository, _channel = channel {
     _listenMusicPlayerChanges();
     controller = YoutubePlayerController(
       initialVideoId: '',
@@ -47,9 +50,7 @@ class BrandMusicPlayerBloc implements MusicPlayerBloc {
 
   void _listenMusicPlayerChanges() {
     currentMusicPlayerStream.listen((event) {
-      if (kDebugMode) {
-        print("Music player update -> $event");
-      }
+      debugPrint("Music player update -> $event");
     });
   }
 
@@ -78,19 +79,16 @@ class BrandMusicPlayerBloc implements MusicPlayerBloc {
 
   void _startYoutubePlayer() {
     List<String> songsId = List.of(
-        _songs.map((e) => e.getId()).where((element) => element.isNotEmpty));
-    controller.load(YoutubePlayer.convertUrlToId(
-        'https://www.youtube.com/watch?v=xV7O26Emffc&ab_channel=GAWVIVEVO')!);
-    // controller.loadPlaylist(
-    //   list: songsId,
-    //   listType: ListType.playlist,
-    // );
+        _songs
+        .map((e) => e.getId())
+        .where((element) => element.isNotEmpty)
+    );
+    controller.load(songsId.first);
   }
 
   @override
   Future<void> close() async {
     _songs.clear();
-    // controller.pause();
     changeState(MusicPlayerState.closed);
   }
 
@@ -116,6 +114,30 @@ class BrandMusicPlayerBloc implements MusicPlayerBloc {
   @override
   void back() {
     blocCore.getBlocModule<NavigatorBloc>(NavigatorBloc.name).back();
+  }
+
+  @override
+  void handleAppLifecyclesChanges(AppLifecycleState newState) {
+    if(newState == AppLifecycleState.inactive && currentValue.isPlaying) {
+      _handleAppInBackground();
+      return;
+    }
+
+    if(newState == AppLifecycleState.resumed && currentValue.isPlaying) {
+      _handleAppInForeground();
+    }
+  }
+
+  Future<void> _handleAppInBackground() async {
+    await Future.delayed(const Duration(seconds: 1, milliseconds: 500), () {
+      controller.play();
+      _channel.prepareToReproduceInBackground(currentValue.currentSong);
+    });
+  }
+
+  Future<void> _handleAppInForeground() async {
+    controller.play();
+    _channel.prepareToReproduceInForeground();
   }
 
   @override

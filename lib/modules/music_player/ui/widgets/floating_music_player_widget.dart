@@ -6,10 +6,34 @@ import 'package:youtube_player_flutter/youtube_player_flutter.dart';
 import '../../bloc/music_player_bloc.dart';
 import '../../entities/music_player.dart';
 
-class FloatingMusicPlayer extends StatelessWidget {
+class FloatingMusicPlayer extends StatefulWidget {
   final MusicPlayerBloc bloc;
 
   const FloatingMusicPlayer({super.key, required this.bloc});
+
+  @override
+  State<StatefulWidget> createState() => _FloatingMusicPlayer();
+}
+
+class _FloatingMusicPlayer extends State<FloatingMusicPlayer> with WidgetsBindingObserver {
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+  }
+
+  @override
+  dispose() {
+    super.dispose();
+    WidgetsBinding.instance.removeObserver(this);
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    super.didChangeAppLifecycleState(state);
+    widget.bloc.handleAppLifecyclesChanges(state);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -26,16 +50,15 @@ class FloatingMusicPlayer extends StatelessWidget {
               width: 0,
               height: 0,
               child: YoutubePlayer(
-                controller: bloc.controller,
+                controller: widget.bloc.controller,
               ),
             ),
-            // YoutubePlayerControllerProvider(controller: bloc.controller, child: const SizedBox()),
-
+            
             StreamBuilder<MusicPlayer>(
-                stream: bloc.currentMusicPlayerStream,
+                stream: widget.bloc.currentMusicPlayerStream,
                 builder: (context, snapshot) {
                   return ElevatedButton.icon(
-                      onPressed: () { bloc.handleButtonTap(); },
+                      onPressed: () { widget.bloc.handleButtonTap(); },
                       icon: MusicPlayerResources.getIconBasedOnState(snapshot.data),
                       label: Text(MusicPlayerResources.getTextBasedOnState(snapshot.data))
                   );

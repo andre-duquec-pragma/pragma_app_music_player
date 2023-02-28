@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:ui';
 import 'package:music_station/entities/entity_bloc.dart';
 import 'package:music_station/modules/music_player/utils/music_player_state.dart';
 import 'package:youtube_player_flutter/youtube_player_flutter.dart';
@@ -23,5 +24,7 @@ abstract class MusicPlayerBloc extends BlocModule {
   void handleButtonTap();
 
   void back();
+
+  void handleAppLifecyclesChanges(AppLifecycleState newState);
 }
 
