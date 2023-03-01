@@ -6,7 +6,8 @@ class MusicPlayer {
   MusicPlayerState state;
 
   MusicPlayer({this.currentSong, required this.state});
-  
+
+  bool get isActive => (state != MusicPlayerState.closed);
   bool get isPlaying => (state == MusicPlayerState.playing);
   bool get isPause => (state == MusicPlayerState.pause);
 

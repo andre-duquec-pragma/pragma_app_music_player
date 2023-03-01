@@ -4,16 +4,25 @@ import '../entities/music_player.dart';
 import 'music_player_state.dart';
 
 class MusicPlayerResources {
-  static Icon getIconBasedOnState(MusicPlayer? musicPlayer) {
-    if(musicPlayer?.state == MusicPlayerState.notSongsAvailable || musicPlayer == null) return const Icon(Icons.block);
 
-    if(musicPlayer.state == MusicPlayerState.open) return const Icon(Icons.downloading);
+  static IconData getIconBasedOnState(MusicPlayer? musicPlayer) {
+    if(musicPlayer?.state == MusicPlayerState.notSongsAvailable || musicPlayer == null) return Icons.block;
 
-    if (musicPlayer.state == MusicPlayerState.changingSong) return const Icon(Icons.downloading);
+    if(musicPlayer.state == MusicPlayerState.open) return Icons.downloading;
 
-    if (musicPlayer.isPause) return const Icon(Icons.play_arrow);
+    if (musicPlayer.state == MusicPlayerState.changingSong) return Icons.downloading;
 
-    return const Icon(Icons.pause);
+    if (musicPlayer.isPause) return Icons.play_arrow;
+
+    return Icons.pause;
+  }
+
+  static IconData getIconBasedOnActivationState(MusicPlayer? musicPlayer) {
+    if(musicPlayer?.state == MusicPlayerState.notSongsAvailable || musicPlayer == null) return Icons.download;
+
+    if (musicPlayer.state == MusicPlayerState.open) return Icons.downloading;
+
+    return musicPlayer.isActive ? Icons.close : Icons.play_arrow;
   }
 
   static String getTextBasedOnState(MusicPlayer? musicPlayer) {
@@ -23,8 +32,8 @@ class MusicPlayerResources {
 
     if (musicPlayer.state == MusicPlayerState.changingSong) return "Changing song";
 
-    if (musicPlayer.isPause) return "Play song";
+    if (musicPlayer.isPause) return "Paused";
 
-    return "Pause song";
+    return "Playing";
   }
 }

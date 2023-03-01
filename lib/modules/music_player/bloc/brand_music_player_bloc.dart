@@ -139,6 +139,7 @@ class BrandMusicPlayerBloc implements MusicPlayerBloc {
   @override
   Future<void> close() async {
     _songs.clear();
+    musicPlayerController.reset();
     changeState(MusicPlayerState.closed);
   }
 
