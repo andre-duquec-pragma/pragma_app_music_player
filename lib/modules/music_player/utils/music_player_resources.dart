@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:music_station/modules/music_player/utils/video_player_visibility_state.dart';
 
 import '../entities/music_player.dart';
 import 'music_player_state.dart';
 
 class MusicPlayerResources {
 
-  static IconData getIconBasedOnState(MusicPlayer? musicPlayer) {
+  static IconData getReproductionButtonIconBasedOnState(MusicPlayer? musicPlayer) {
     if(musicPlayer?.state == MusicPlayerState.notSongsAvailable || musicPlayer == null) return Icons.block;
 
     if(musicPlayer.state == MusicPlayerState.open) return Icons.downloading;
@@ -17,15 +18,17 @@ class MusicPlayerResources {
     return Icons.pause;
   }
 
-  static IconData getIconBasedOnActivationState(MusicPlayer? musicPlayer) {
+  static IconData getActivationButtonIconBasedOnState(MusicPlayer? musicPlayer) {
     if(musicPlayer?.state == MusicPlayerState.notSongsAvailable || musicPlayer == null) return Icons.download;
 
     if (musicPlayer.state == MusicPlayerState.open) return Icons.downloading;
 
+    if (musicPlayer.state == MusicPlayerState.songsLoaded) return Icons.play_arrow;
+
     return musicPlayer.isActive ? Icons.close : Icons.play_arrow;
   }
 
-  static String getTextBasedOnState(MusicPlayer? musicPlayer) {
+  static String getFloatingMusicPlayerTextBasedOnState(MusicPlayer? musicPlayer) {
     if(musicPlayer?.state == MusicPlayerState.notSongsAvailable || musicPlayer == null) return "There is not song to play";
 
     if (musicPlayer.state == MusicPlayerState.open) return "Waiting for Pragma music";
@@ -35,5 +38,11 @@ class MusicPlayerResources {
     if (musicPlayer.isPause) return "Paused";
 
     return "Playing";
+  }
+
+  static IconData getVideoVisibilityButtonIconBasedOnState(VideoPlayerVisibilityState state) {
+    return state == VideoPlayerVisibilityState.hidden
+        ? Icons.open_in_browser
+        : Icons.hide_source;
   }
 }

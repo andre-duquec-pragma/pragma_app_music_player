@@ -5,4 +5,5 @@ enum MusicPlayerState {
   open,
   changingSong,
   notSongsAvailable,
+  songsLoaded
 }

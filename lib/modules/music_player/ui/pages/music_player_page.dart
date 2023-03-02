@@ -17,6 +17,8 @@ class MusicPlayerPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    bloc.loadSongs();
+    debugPrint("Building view again");
     return Container(
       decoration: BoxDecoration(
         gradient: LinearGradient(
@@ -39,7 +41,7 @@ class MusicPlayerPage extends StatelessWidget {
               onPressed: () => { bloc.back() }),
         ),
         body:  StreamBuilder(
-          stream: bloc.currentMusicPlayerStream,
+          stream: bloc.stream,
           builder: (context, AsyncSnapshot<MusicPlayer> snapshot) {
             WidgetsBinding.instance.addPostFrameCallback((_) => _handleFloatingMusicPlayerState(context));
             return _buildInitialState(context, snapshot.data);
@@ -65,7 +67,7 @@ class MusicPlayerPage extends StatelessWidget {
               children: [
                 Flexible(
                     child: Text(
-                  "Welcome to Pragma Music Player",
+                  "Playlist",
                   style: Theme.of(context).textTheme.headlineSmall,
                   overflow: TextOverflow.clip,
                 )
@@ -84,25 +86,24 @@ class MusicPlayerPage extends StatelessWidget {
                     foregroundColor: Colors.deepPurple,
                   ),
                   child: Icon(
-                      MusicPlayerResources.getIconBasedOnActivationState(musicPlayer)
+                      MusicPlayerResources.getActivationButtonIconBasedOnState(musicPlayer)
                   ),
                 )
 
               ],
             ),
-        )
-
+        ),
       ],
     );
   }
 
   void _handleFloatingMusicPlayerState(BuildContext context) {
-    if (bloc.currentValue.state == MusicPlayerState.open) {
+    if (bloc.value.state == MusicPlayerState.open) {
       _showFloatingMusicPlayer(context);
       return;
     }
 
-    if (bloc.currentValue.state == MusicPlayerState.closed) {
+    if (bloc.value.state == MusicPlayerState.closed) {
       _hideFloatingMusicPlayer(context);
     }
   }
