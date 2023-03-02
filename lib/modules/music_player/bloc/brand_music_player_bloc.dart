@@ -3,6 +3,7 @@ import 'dart:collection';
 import 'dart:ui';
 
 import 'package:flutter/foundation.dart';
+import 'package:flutter/services.dart';
 import 'package:music_station/entities/entity_bloc.dart';
 import 'package:music_station/modules/music_player/repository/music_player_repository.dart';
 import 'package:music_station/modules/music_player/utils/music_player_state.dart';
@@ -20,10 +21,11 @@ class BrandMusicPlayerBloc implements MusicPlayerBloc {
   final MusicPlayerRepository _repository;
   final MusicPlayerMethodChannel _channel;
 
-  BrandMusicPlayerBloc({
-    required MusicPlayerRepository repository,
-    required MusicPlayerMethodChannel channel
-  }) : _repository = repository, _channel = channel {
+  BrandMusicPlayerBloc(
+      {required MusicPlayerRepository repository,
+      required MusicPlayerMethodChannel channel})
+      : _repository = repository,
+        _channel = channel {
     _listenMusicPlayerChanges();
     controller = YoutubePlayerController(
       initialVideoId: '',
@@ -79,10 +81,7 @@ class BrandMusicPlayerBloc implements MusicPlayerBloc {
 
   void _startYoutubePlayer() {
     List<String> songsId = List.of(
-        _songs
-        .map((e) => e.getId())
-        .where((element) => element.isNotEmpty)
-    );
+        _songs.map((e) => e.getId()).where((element) => element.isNotEmpty));
     controller.load(songsId.first);
   }
 
@@ -106,9 +105,7 @@ class BrandMusicPlayerBloc implements MusicPlayerBloc {
 
     _musicPlayerBloc.value =
         MusicPlayer(currentSong: currentValue.currentSong, state: newState);
-    newState == MusicPlayerState.pause
-        ? controller.pause()
-        : controller.play();
+    newState == MusicPlayerState.pause ? controller.pause() : controller.play();
   }
 
   @override
@@ -118,20 +115,46 @@ class BrandMusicPlayerBloc implements MusicPlayerBloc {
 
   @override
   void handleAppLifecyclesChanges(AppLifecycleState newState) {
-    if(newState == AppLifecycleState.inactive && currentValue.isPlaying) {
+    if (newState == AppLifecycleState.inactive && currentValue.isPlaying) {
       _handleAppInBackground();
       return;
     }
 
-    if(newState == AppLifecycleState.resumed && currentValue.isPlaying) {
+    if (newState == AppLifecycleState.resumed && currentValue.isPlaying) {
       _handleAppInForeground();
     }
   }
+
+
+  void _defaultFunction(MethodCall call) {
+    switch (call.method) {
+      case 'pause':
+        {
+          print("Excellent pause");
+          controller.pause();
+        }
+        break;
+      case 'play':
+        {
+          print("Good play");
+          controller.play();
+        }
+        break;
+
+      default:
+        {
+          print("Invalid choice");
+        }
+        break;
+    }
+  }
+
 
   Future<void> _handleAppInBackground() async {
     await Future.delayed(const Duration(seconds: 1, milliseconds: 500), () {
       controller.play();
       _channel.prepareToReproduceInBackground(currentValue.currentSong);
+      _channel.onListenerPlayer(_defaultFunction);
     });
   }
 

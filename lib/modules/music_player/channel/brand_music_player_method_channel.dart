@@ -23,4 +23,13 @@ class BrandMusicPlayerMethodChannel implements MusicPlayerMethodChannel {
           MusicPlayerMethodChannelMethods.prepareForReproduceInForeground.value
       );
     }
+
+
+  @override
+  Future<void> onListenerPlayer(Function(MethodCall call) functionCallback) async {
+    channel.setMethodCallHandler((call) async{
+      functionCallback(call);
+    });
+  }
+
 }
