@@ -48,12 +48,12 @@ class _FloatingMusicPlayer extends State<FloatingMusicPlayer> with WidgetsBindin
             child: Container(
                 decoration: BoxDecoration(
                     borderRadius: const BorderRadius.all( Radius.circular(16) ),
-                    color: Colors.white.withAlpha(100),
+                    color: Colors.white.withAlpha(240),
                     boxShadow: [
                       BoxShadow(
-                          color: Colors.black.withAlpha(10),
+                          color: Colors.black.withAlpha(80),
                           blurRadius: 10,
-                          spreadRadius: 1,
+                          spreadRadius: 2,
                           offset: const Offset(4,4)
                       ),
                     ]

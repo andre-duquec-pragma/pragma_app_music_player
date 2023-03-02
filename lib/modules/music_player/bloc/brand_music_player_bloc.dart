@@ -60,7 +60,9 @@ class BrandMusicPlayerBloc implements MusicPlayerBloc {
   Stream<MusicPlayer> get stream => _musicPlayerBloc.stream;
 
   @override
-  List<PlayListSong> get playlist => _songs.toList();
+  List<PlayListSong> get playlist => _playlist;
+
+  List<PlayListSong> _playlist = [];
 
   void _listenMusicPlayerChanges() {
     stream.listen((event) {
@@ -71,14 +73,14 @@ class BrandMusicPlayerBloc implements MusicPlayerBloc {
   Future<void> _getPlaylistSongs() async {
     List<PlayListSong> songs = await _repository.getSongs();
     _songs.addAll(songs);
+    _playlist = songs;
   }
 
   @override
   Future<void> loadSongs() async {
     if(_songs.isNotEmpty) return;
 
-    List<PlayListSong> songs = await _repository.getSongs();
-    _songs.addAll(songs);
+    await _getPlaylistSongs();
     _updateMusicPlayer(
       value.copyWith(state: MusicPlayerState.songsLoaded)
     );
@@ -133,6 +135,13 @@ class BrandMusicPlayerBloc implements MusicPlayerBloc {
     );
 
     _songs.remove(song);
+    _updatePlayList(song);
+  }
+
+  void _updatePlayList(PlayListSong currentSong) {
+    _playlist = _playlist.map((e) => e.copyWith(isActive: false)).toList();
+    int index = _playlist.indexWhere((element) => element.getId() == currentSong.getId());
+    _playlist[index] = _playlist[index].copyWith(isActive: true);
   }
 
   void _handleMusicPlayerNotStarted() {
@@ -171,6 +180,7 @@ class BrandMusicPlayerBloc implements MusicPlayerBloc {
   @override
   Future<void> close() async {
     _songs.clear();
+    _playlist = _playlist.map((e) => e.copyWith(isActive: false)).toList();
     musicPlayerController.reset();
     _updateMusicPlayer(
       value.copyWith(state: MusicPlayerState.closed)

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:music_station/modules/music_player/bloc/music_player_bloc.dart';
 import 'package:music_station/modules/music_player/entities/music_player.dart';
+import 'package:music_station/modules/music_player/ui/widgets/music_reproduction_animation_widget.dart';
 import 'package:music_station/modules/music_player/utils/music_player_resources.dart';
 import 'package:music_station/modules/music_player/utils/music_player_state.dart';
 
@@ -18,15 +19,14 @@ class MusicPlayerPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     bloc.loadSongs();
-    debugPrint("Building view again");
     return Container(
       decoration: BoxDecoration(
         gradient: LinearGradient(
           begin: Alignment.topCenter,
           end: Alignment.bottomCenter,
           colors: [
-            Colors.deepPurple.shade800,
-            Colors.deepPurple.shade200
+            Colors.deepPurple.shade400,
+            Colors.deepPurple.shade800
           ],
         )
       ),
@@ -57,42 +57,113 @@ class MusicPlayerPage extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
 
-        Image.asset("assets/music-illustration.png"),
+        Image.asset("assets/music-illustration.png", height: MediaQuery.of(context).size.height * 0.4),
 
         Padding(
             padding: const EdgeInsets.symmetric(horizontal: 20),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              crossAxisAlignment: CrossAxisAlignment.center,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Flexible(
-                    child: Text(
-                  "Playlist",
-                  style: Theme.of(context).textTheme.headlineSmall,
-                  overflow: TextOverflow.clip,
-                )
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Flexible(
+                      child: Text(
+                        "Welcome to Pragma Music Player",
+                        style: TextStyle(
+                            fontSize: Theme.of(context).textTheme.headlineSmall?.fontSize ?? 12,
+                            color: Colors.white
+                        ),
+                        overflow: TextOverflow.clip,
+                      ),
+                    ),
+
+                    SizedBox(width: MediaQuery.of(context).size.width * 0.1),
+
+                    ElevatedButton(
+                      onPressed: () {
+                        (musicPlayer?.isActive ?? false) ? bloc.close() : bloc.start();
+                      },
+                      style: ElevatedButton.styleFrom(
+                        shape: const CircleBorder(),
+                        padding: const EdgeInsets.all(14),
+                        backgroundColor: Colors.white,
+                        foregroundColor: Colors.deepPurple,
+                      ),
+                      child: Icon(
+                          MusicPlayerResources.getActivationButtonIconBasedOnState(musicPlayer)
+                      ),
+                    )
+
+                  ],
                 ),
 
-                SizedBox(width: MediaQuery.of(context).size.width * 0.1),
+                const SizedBox(height: 30),
 
-                ElevatedButton(
-                  onPressed: () {
-                    (musicPlayer?.isActive ?? false) ? bloc.close() : bloc.start();
-                  },
-                  style: ElevatedButton.styleFrom(
-                    shape: const CircleBorder(),
-                    padding: const EdgeInsets.all(14),
-                    backgroundColor: Colors.white,
-                    foregroundColor: Colors.deepPurple,
+                Text(
+                  "Playlist",
+                  style: TextStyle(
+                    fontSize: Theme.of(context).textTheme.titleLarge?.fontSize ?? 12,
+                    color: Colors.white,
                   ),
-                  child: Icon(
-                      MusicPlayerResources.getActivationButtonIconBasedOnState(musicPlayer)
-                  ),
-                )
-
+                  textAlign: TextAlign.start,
+                  overflow: TextOverflow.clip,
+                ),
               ],
             ),
         ),
+
+
+
+        const SizedBox(height: 12),
+
+        Expanded(
+            child: ListView.builder(
+                shrinkWrap: true,
+                itemCount: bloc.playlist.length,
+                itemBuilder: (BuildContext context, int index) {
+                  return Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 0),
+                    child: ListTile(
+                      leading: Padding(
+                        padding: const EdgeInsets.all(10),
+                        child: Image.asset("assets/cd.png"),
+                      ),
+                      title: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            bloc.playlist[index].name,
+                            style: TextStyle(
+                                fontSize: Theme.of(context).textTheme.titleMedium?.fontSize ?? 12,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white
+                            ),
+                          ),
+
+                          Text(
+                              "Artist",
+                            style: TextStyle(
+                                fontSize: Theme.of(context).textTheme.titleSmall?.fontSize ?? 12,
+                                color: Colors.white60
+                            ),
+                          )
+                        ],
+                      ),
+                      trailing: bloc.playlist[index].isActive
+                          ? Container(
+                        width: 60,
+                        height: 15,
+                        child: const MusicReproductionAnimation(),
+                      )
+                          : Container(width: 0),
+                    ),
+                  );
+                }
+            )
+        )
       ],
     );
   }
