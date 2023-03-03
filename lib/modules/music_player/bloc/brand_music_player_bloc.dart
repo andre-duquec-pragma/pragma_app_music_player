@@ -130,17 +130,16 @@ class BrandMusicPlayerBloc implements MusicPlayerBloc {
     switch (call.method) {
       case 'pause':
         {
-          print("Excellent pause");
+          print("Control pause clicked");
           controller.pause();
         }
         break;
       case 'play':
         {
-          print("Good play");
+          print("Control play clicked");
           controller.play();
         }
         break;
-
       default:
         {
           print("Invalid choice");
