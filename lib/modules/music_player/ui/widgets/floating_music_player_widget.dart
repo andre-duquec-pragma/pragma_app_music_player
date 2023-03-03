@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:music_station/modules/music_player/utils/music_player_resources.dart';
+import 'package:music_station/modules/music_player/utils/music_player_state.dart';
 import 'package:youtube_player_flutter/youtube_player_flutter.dart';
 // import 'package:youtube_player_iframe/youtube_player_iframe.dart';
 
@@ -50,10 +51,14 @@ class _FloatingMusicPlayer extends State<FloatingMusicPlayer> with WidgetsBindin
               width: 0,
               height: 0,
               child: YoutubePlayer(
-                controller: widget.bloc.controller,
+                controller: widget.bloc.musicPlayerController,
+                onEnded: (data) => {
+                  widget.bloc.handleEndedSong()
+                },
               ),
             ),
-            
+
+
             StreamBuilder<MusicPlayer>(
                 stream: widget.bloc.currentMusicPlayerStream,
                 builder: (context, snapshot) {

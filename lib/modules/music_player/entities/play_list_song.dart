@@ -1,4 +1,4 @@
-import 'dart:convert';
+import 'package:youtube_player_flutter/youtube_player_flutter.dart';
 
 class PlayListSong {
   final String url;
@@ -9,13 +9,8 @@ class PlayListSong {
     required this.name
   });
 
-  String getId() {
-    final params = Uri.parse(url).queryParameters;
-    final videoId = params['v'];
-
-    if (videoId == null) return "";
-
-    return videoId;
+  String? getId() {
+    return YoutubePlayer.convertUrlToId(url);
   }
 
   Map<String, dynamic> toJSON() => {
