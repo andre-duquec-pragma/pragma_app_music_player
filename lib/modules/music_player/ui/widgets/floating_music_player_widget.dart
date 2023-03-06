@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:music_station/modules/music_player/utils/music_player_resources.dart';
-import 'package:music_station/modules/music_player/utils/music_player_state.dart';
-import 'package:youtube_player_flutter/youtube_player_flutter.dart';
-// import 'package:youtube_player_iframe/youtube_player_iframe.dart';
+import 'package:music_station/modules/music_player/utils/video_player_visibility_state.dart';
 
 import '../../bloc/music_player_bloc.dart';
 import '../../entities/music_player.dart';
+import 'external_video_player_widget.dart';
+import 'floating_player_buttons_widget.dart';
+import 'floating_player_information_widget.dart';
 
 class FloatingMusicPlayer extends StatefulWidget {
   final MusicPlayerBloc bloc;
@@ -41,38 +41,77 @@ class _FloatingMusicPlayer extends State<FloatingMusicPlayer> with WidgetsBindin
     double width = MediaQuery.of(context).size.width;
 
     return Positioned(
-        bottom: 40,
-        left: width * 0.1,
-        width: width * 0.8,
-        child: Column(
-          children: [
+        bottom: 0,
+        left: width * 0.05,
+        width: width * 0.9,
+        child: SafeArea(
+            child: Container(
+                decoration: BoxDecoration(
+                    borderRadius: const BorderRadius.all( Radius.circular(16) ),
+                    color: Colors.white.withAlpha(240),
+                    boxShadow: [
+                      BoxShadow(
+                          color: Colors.black.withAlpha(80),
+                          blurRadius: 10,
+                          spreadRadius: 2,
+                          offset: const Offset(4,4)
+                      ),
+                    ]
+                ),
+                child: Column(
+                  children: [
 
-            SizedBox(
-              width: 0,
-              height: 0,
-              child: YoutubePlayer(
-                controller: widget.bloc.musicPlayerController,
-                onEnded: (data) => {
-                  widget.bloc.handleEndedSong()
-                },
-              ),
-            ),
+                    StreamBuilder<MusicPlayer>(
+                        stream: widget.bloc.stream,
+                        builder: (context, snapshot) {
 
+                          bool isMusicPlayerReady = snapshot.data?.isReady ?? false;
+                          VideoPlayerVisibilityState videoPlayerVisibilityState = (snapshot.data?.videoVisibilityState ?? VideoPlayerVisibilityState.hidden);
+                          bool isVideoPlayerVisible = videoPlayerVisibilityState == VideoPlayerVisibilityState.visible;
+                          double width = MediaQuery.of(context).size.width;
 
-            StreamBuilder<MusicPlayer>(
-                stream: widget.bloc.currentMusicPlayerStream,
-                builder: (context, snapshot) {
-                  return ElevatedButton.icon(
-                      onPressed: () { widget.bloc.handleButtonTap(); },
-                      icon: MusicPlayerResources.getIconBasedOnState(snapshot.data),
-                      label: Text(MusicPlayerResources.getTextBasedOnState(snapshot.data))
-                  );
-                }
+                          return Column(
+                            children: [
+                              ExternalVideoPlayer(
+                                  controller: widget.bloc.musicPlayerController,
+                                  isVisible: isVideoPlayerVisible,
+                                  maxWidth: width,
+                                  onEnded: (data) => { widget.bloc.handleEndedSong() },
+                              ),
+
+                              Padding(
+                                padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 14),
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  children: [
+
+                                    FloatingPlayerInformationWidget(
+                                        data: snapshot.data
+                                    ),
+
+                                    FloatingPlayerButtonsWidget(
+                                        isMusicPlayerReady: isMusicPlayerReady,
+                                        bloc: widget.bloc,
+                                        data: snapshot.data
+                                    )
+                                  ],
+                                ),
+                              )
+                            ],
+                          );
+                        }
+                    ),
+                  ],
+                )
             )
-          ],
         )
     );
   }
 
 
 }
+
+
+
+

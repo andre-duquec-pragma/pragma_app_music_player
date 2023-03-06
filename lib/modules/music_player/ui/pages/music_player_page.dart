@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:music_station/modules/music_player/bloc/music_player_bloc.dart';
 import 'package:music_station/modules/music_player/entities/music_player.dart';
+import 'package:music_station/modules/music_player/ui/widgets/music_reproduction_animation_widget.dart';
+import 'package:music_station/modules/music_player/utils/music_player_resources.dart';
 import 'package:music_station/modules/music_player/utils/music_player_state.dart';
 
 import '../widgets/floating_music_player_widget.dart';
@@ -16,86 +18,184 @@ class MusicPlayerPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Music player'),
-        leading: IconButton(
-            icon: const Icon(Icons.arrow_back),
-            onPressed: () => { bloc.back() }),
-      ),
-      body: Center(
-        child: StreamBuilder(
-          stream: bloc.currentMusicPlayerStream,
+    bloc.loadSongs();
+    return _buildPage(
+        context: context,
+        body: StreamBuilder(
+          stream: bloc.stream,
           builder: (context, AsyncSnapshot<MusicPlayer> snapshot) {
             WidgetsBinding.instance.addPostFrameCallback((_) => _handleFloatingMusicPlayerState(context));
-
-            if (snapshot.data == null) return _buildInitialState();
-
-            if (snapshot.data!.isPlaying || snapshot.data!.isPause) {
-              return _buildPlayingState(snapshot.data);
-            } else if(snapshot.data?.state == MusicPlayerState.changingSong
-                || snapshot.data?.state == MusicPlayerState.open) {
-              return _buildLoadingState();
-            }
-
-            return _buildInitialState();
+            return _buildPageBody(context, snapshot.data);
           },
+        )
+    );
+  }
+
+  Widget _buildPage({required BuildContext context, required Widget body}) {
+    return Container(
+      decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [
+              Colors.deepPurple.shade400,
+              Colors.deepPurple.shade800
+            ],
+          )
+      ),
+      child: Scaffold(
+        backgroundColor: Colors.transparent,
+        appBar: AppBar(
+          backgroundColor: Colors.transparent,
+          elevation: 0,
+          title: const Text('Music player'),
+          leading: IconButton(
+              icon: const Icon(Icons.arrow_back),
+              onPressed: () => { bloc.back() }),
         ),
+        body: body,
       ),
     );
   }
 
-  Widget _buildLoadingState() {
-    return const Text("Loading...");
-  }
-
-  Widget _buildPlayingState(MusicPlayer? musicPlayer) {
-    if(musicPlayer == null) return _buildInitialState();
-
+  Widget _buildPageBody(BuildContext context, MusicPlayer? musicPlayer) {
     return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
+      mainAxisAlignment: MainAxisAlignment.start,
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
-        const Text("Current song"),
-        Text(musicPlayer.currentSong?.name ?? ""),
 
-        const SizedBox(height: 20),
+        Image.asset("assets/music-illustration.png", height: MediaQuery.of(context).size.height * 0.4),
 
-        IconButton(
-          onPressed: () => { bloc.close() },
-          icon: const Icon(Icons.close)
-        )
+        _buildPlaylistPresentation(context, musicPlayer),
+
+        const SizedBox(height: 12),
+
+        _buildPlayList(),
       ],
     );
   }
 
-  Widget _buildInitialState() {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: [
-        const Text("Welcome to Pragma Music Player"),
+  Widget _buildPlaylistPresentation(BuildContext context, MusicPlayer? musicPlayer) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Flexible(
+                child: Text(
+                  "Welcome to Pragma Music Player",
+                  style: TextStyle(
+                      fontSize: Theme.of(context).textTheme.headlineSmall?.fontSize ?? 12,
+                      color: Colors.white
+                  ),
+                  overflow: TextOverflow.clip,
+                ),
+              ),
 
-        const SizedBox(height: 20),
+              SizedBox(width: MediaQuery.of(context).size.width * 0.1),
 
-        ElevatedButton.icon(
-            icon: const Icon(Icons.queue_music_sharp),
-            label: const Text("Play some music"),
-            onPressed: () => {
-              bloc.start()
+              ElevatedButton(
+                onPressed: () {
+                  (musicPlayer?.isActive ?? false) ? bloc.close() : bloc.start();
+                },
+                style: ElevatedButton.styleFrom(
+                  shape: const CircleBorder(),
+                  padding: const EdgeInsets.all(14),
+                  backgroundColor: Colors.white,
+                  foregroundColor: Colors.deepPurple,
+                ),
+                child: Icon(
+                    MusicPlayerResources.getActivationButtonIconBasedOnState(musicPlayer)
+                ),
+              )
+
+            ],
+          ),
+
+          const SizedBox(height: 30),
+
+          Text(
+            "Playlist",
+            style: TextStyle(
+              fontSize: Theme.of(context).textTheme.titleLarge?.fontSize ?? 12,
+              color: Colors.white,
+            ),
+            textAlign: TextAlign.start,
+            overflow: TextOverflow.clip,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildPlayList() {
+    return Expanded(
+        child: ListView.builder(
+            shrinkWrap: true,
+            itemCount: bloc.playlist.length,
+            itemBuilder: (BuildContext context, int index) {
+              return Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 0),
+                child: ListTile(
+                  leading: Padding(
+                    padding: const EdgeInsets.all(10),
+                    child: Image.asset("assets/cd.png"),
+                  ),
+                  title: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        bloc.playlist[index].name,
+                        style: TextStyle(
+                            fontSize: Theme.of(context).textTheme.titleMedium?.fontSize ?? 12,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white
+                        ),
+                      ),
+
+                      Text(
+                        "Artist",
+                        style: TextStyle(
+                            fontSize: Theme.of(context).textTheme.titleSmall?.fontSize ?? 12,
+                            color: Colors.white60
+                        ),
+                      )
+                    ],
+                  ),
+                  trailing: _buildReproductionAnimation(
+                      isSongActive:  bloc.playlist[index].isActive
+                  ),
+                ),
+              );
             }
         )
-      ],
+    );
+  }
+
+  Widget _buildReproductionAnimation({required bool isSongActive}) {
+    if (!isSongActive) {
+      return const SizedBox(width: 0);
+    }
+
+    return const SizedBox(
+      width: 60,
+      height: 15,
+      child: MusicReproductionAnimation(),
     );
   }
 
   void _handleFloatingMusicPlayerState(BuildContext context) {
-    if (bloc.currentValue.state == MusicPlayerState.open) {
+    if (bloc.value.state == MusicPlayerState.open) {
       _showFloatingMusicPlayer(context);
       return;
     }
 
-    if (bloc.currentValue.state == MusicPlayerState.closed) {
+    if (bloc.value.state == MusicPlayerState.closed) {
       _hideFloatingMusicPlayer(context);
     }
   }

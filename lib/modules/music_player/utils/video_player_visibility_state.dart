@@ -1,0 +1,4 @@
+enum VideoPlayerVisibilityState {
+  visible,
+  hidden
+}
