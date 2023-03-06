@@ -19,16 +19,29 @@ class MusicPlayerPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     bloc.loadSongs();
+    return _buildPage(
+        context: context,
+        body: StreamBuilder(
+          stream: bloc.stream,
+          builder: (context, AsyncSnapshot<MusicPlayer> snapshot) {
+            WidgetsBinding.instance.addPostFrameCallback((_) => _handleFloatingMusicPlayerState(context));
+            return _buildPageBody(context, snapshot.data);
+          },
+        )
+    );
+  }
+
+  Widget _buildPage({required BuildContext context, required Widget body}) {
     return Container(
       decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
-          colors: [
-            Colors.deepPurple.shade400,
-            Colors.deepPurple.shade800
-          ],
-        )
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [
+              Colors.deepPurple.shade400,
+              Colors.deepPurple.shade800
+            ],
+          )
       ),
       child: Scaffold(
         backgroundColor: Colors.transparent,
@@ -40,18 +53,12 @@ class MusicPlayerPage extends StatelessWidget {
               icon: const Icon(Icons.arrow_back),
               onPressed: () => { bloc.back() }),
         ),
-        body:  StreamBuilder(
-          stream: bloc.stream,
-          builder: (context, AsyncSnapshot<MusicPlayer> snapshot) {
-            WidgetsBinding.instance.addPostFrameCallback((_) => _handleFloatingMusicPlayerState(context));
-            return _buildInitialState(context, snapshot.data);
-          },
-        ),
+        body: body,
       ),
     );
   }
 
-  Widget _buildInitialState(BuildContext context, MusicPlayer? musicPlayer) {
+  Widget _buildPageBody(BuildContext context, MusicPlayer? musicPlayer) {
     return Column(
       mainAxisAlignment: MainAxisAlignment.start,
       crossAxisAlignment: CrossAxisAlignment.center,
@@ -59,112 +66,126 @@ class MusicPlayerPage extends StatelessWidget {
 
         Image.asset("assets/music-illustration.png", height: MediaQuery.of(context).size.height * 0.4),
 
-        Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    Flexible(
-                      child: Text(
-                        "Welcome to Pragma Music Player",
-                        style: TextStyle(
-                            fontSize: Theme.of(context).textTheme.headlineSmall?.fontSize ?? 12,
-                            color: Colors.white
-                        ),
-                        overflow: TextOverflow.clip,
-                      ),
-                    ),
-
-                    SizedBox(width: MediaQuery.of(context).size.width * 0.1),
-
-                    ElevatedButton(
-                      onPressed: () {
-                        (musicPlayer?.isActive ?? false) ? bloc.close() : bloc.start();
-                      },
-                      style: ElevatedButton.styleFrom(
-                        shape: const CircleBorder(),
-                        padding: const EdgeInsets.all(14),
-                        backgroundColor: Colors.white,
-                        foregroundColor: Colors.deepPurple,
-                      ),
-                      child: Icon(
-                          MusicPlayerResources.getActivationButtonIconBasedOnState(musicPlayer)
-                      ),
-                    )
-
-                  ],
-                ),
-
-                const SizedBox(height: 30),
-
-                Text(
-                  "Playlist",
-                  style: TextStyle(
-                    fontSize: Theme.of(context).textTheme.titleLarge?.fontSize ?? 12,
-                    color: Colors.white,
-                  ),
-                  textAlign: TextAlign.start,
-                  overflow: TextOverflow.clip,
-                ),
-              ],
-            ),
-        ),
-
-
+        _buildPlaylistPresentation(context, musicPlayer),
 
         const SizedBox(height: 12),
 
-        Expanded(
-            child: ListView.builder(
-                shrinkWrap: true,
-                itemCount: bloc.playlist.length,
-                itemBuilder: (BuildContext context, int index) {
-                  return Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 0),
-                    child: ListTile(
-                      leading: Padding(
-                        padding: const EdgeInsets.all(10),
-                        child: Image.asset("assets/cd.png"),
-                      ),
-                      title: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            bloc.playlist[index].name,
-                            style: TextStyle(
-                                fontSize: Theme.of(context).textTheme.titleMedium?.fontSize ?? 12,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.white
-                            ),
-                          ),
-
-                          Text(
-                              "Artist",
-                            style: TextStyle(
-                                fontSize: Theme.of(context).textTheme.titleSmall?.fontSize ?? 12,
-                                color: Colors.white60
-                            ),
-                          )
-                        ],
-                      ),
-                      trailing: bloc.playlist[index].isActive
-                          ? Container(
-                        width: 60,
-                        height: 15,
-                        child: const MusicReproductionAnimation(),
-                      )
-                          : Container(width: 0),
-                    ),
-                  );
-                }
-            )
-        )
+        _buildPlayList(),
       ],
+    );
+  }
+
+  Widget _buildPlaylistPresentation(BuildContext context, MusicPlayer? musicPlayer) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Flexible(
+                child: Text(
+                  "Welcome to Pragma Music Player",
+                  style: TextStyle(
+                      fontSize: Theme.of(context).textTheme.headlineSmall?.fontSize ?? 12,
+                      color: Colors.white
+                  ),
+                  overflow: TextOverflow.clip,
+                ),
+              ),
+
+              SizedBox(width: MediaQuery.of(context).size.width * 0.1),
+
+              ElevatedButton(
+                onPressed: () {
+                  (musicPlayer?.isActive ?? false) ? bloc.close() : bloc.start();
+                },
+                style: ElevatedButton.styleFrom(
+                  shape: const CircleBorder(),
+                  padding: const EdgeInsets.all(14),
+                  backgroundColor: Colors.white,
+                  foregroundColor: Colors.deepPurple,
+                ),
+                child: Icon(
+                    MusicPlayerResources.getActivationButtonIconBasedOnState(musicPlayer)
+                ),
+              )
+
+            ],
+          ),
+
+          const SizedBox(height: 30),
+
+          Text(
+            "Playlist",
+            style: TextStyle(
+              fontSize: Theme.of(context).textTheme.titleLarge?.fontSize ?? 12,
+              color: Colors.white,
+            ),
+            textAlign: TextAlign.start,
+            overflow: TextOverflow.clip,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildPlayList() {
+    return Expanded(
+        child: ListView.builder(
+            shrinkWrap: true,
+            itemCount: bloc.playlist.length,
+            itemBuilder: (BuildContext context, int index) {
+              return Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 0),
+                child: ListTile(
+                  leading: Padding(
+                    padding: const EdgeInsets.all(10),
+                    child: Image.asset("assets/cd.png"),
+                  ),
+                  title: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        bloc.playlist[index].name,
+                        style: TextStyle(
+                            fontSize: Theme.of(context).textTheme.titleMedium?.fontSize ?? 12,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white
+                        ),
+                      ),
+
+                      Text(
+                        "Artist",
+                        style: TextStyle(
+                            fontSize: Theme.of(context).textTheme.titleSmall?.fontSize ?? 12,
+                            color: Colors.white60
+                        ),
+                      )
+                    ],
+                  ),
+                  trailing: _buildReproductionAnimation(
+                      isSongActive:  bloc.playlist[index].isActive
+                  ),
+                ),
+              );
+            }
+        )
+    );
+  }
+
+  Widget _buildReproductionAnimation({required bool isSongActive}) {
+    if (!isSongActive) {
+      return const SizedBox(width: 0);
+    }
+
+    return const SizedBox(
+      width: 60,
+      height: 15,
+      child: MusicReproductionAnimation(),
     );
   }
 

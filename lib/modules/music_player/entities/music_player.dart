@@ -9,7 +9,7 @@ class MusicPlayer {
 
   const MusicPlayer({this.currentSong, required this.state, required this.videoVisibilityState});
 
-  bool get isActive => (state != MusicPlayerState.closed && state != MusicPlayerState.songsLoaded );
+  bool get isActive => ( state != MusicPlayerState.closed && state != MusicPlayerState.songsLoaded && state != MusicPlayerState.notSongsAvailable);
   bool get isPlaying => (state == MusicPlayerState.playing);
   bool get isPause => (state == MusicPlayerState.pause);
   bool get isReady => (isPlaying || isPause);

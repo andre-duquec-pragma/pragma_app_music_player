@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:music_station/modules/music_player/utils/music_player_resources.dart';
-import 'package:music_station/modules/music_player/utils/responsive_utils.dart';
 import 'package:music_station/modules/music_player/utils/video_player_visibility_state.dart';
-import 'package:youtube_player_flutter/youtube_player_flutter.dart';
 
 import '../../bloc/music_player_bloc.dart';
 import '../../entities/music_player.dart';
+import 'external_video_player_widget.dart';
+import 'floating_player_buttons_widget.dart';
+import 'floating_player_information_widget.dart';
 
 class FloatingMusicPlayer extends StatefulWidget {
   final MusicPlayerBloc bloc;
@@ -72,16 +72,11 @@ class _FloatingMusicPlayer extends State<FloatingMusicPlayer> with WidgetsBindin
 
                           return Column(
                             children: [
-
-                              SizedBox(
-                                width: isVideoPlayerVisible ?  width: 0,
-                                height: isVideoPlayerVisible ? ResponsiveUtils.calculateHeightAspectRatioBasedOn(width: width) : 0,
-                                child: YoutubePlayer(
+                              ExternalVideoPlayer(
                                   controller: widget.bloc.musicPlayerController,
-                                  onEnded: (data) => {
-                                    widget.bloc.handleEndedSong()
-                                  },
-                                ),
+                                  isVisible: isVideoPlayerVisible,
+                                  maxWidth: width,
+                                  onEnded: (data) => { widget.bloc.handleEndedSong() },
                               ),
 
                               Padding(
@@ -91,52 +86,14 @@ class _FloatingMusicPlayer extends State<FloatingMusicPlayer> with WidgetsBindin
                                   crossAxisAlignment: CrossAxisAlignment.center,
                                   children: [
 
-                                    Row(
-                                      crossAxisAlignment: CrossAxisAlignment.center,
-                                      mainAxisAlignment: MainAxisAlignment.center,
-                                      children: [
-                                        const Icon(Icons.music_note),
-
-                                        const SizedBox(width: 10),
-
-                                        Column(
-                                          mainAxisAlignment: MainAxisAlignment.center,
-                                          crossAxisAlignment: CrossAxisAlignment.start,
-                                          children: [
-                                            Text(
-                                              MusicPlayerResources.getFloatingMusicPlayerTextBasedOnState(snapshot.data),
-                                              style: Theme.of(context).textTheme.titleSmall,
-                                            ),
-                                            Text(
-                                              snapshot.data?.currentSong?.name ?? "------",
-                                              style: Theme.of(context).textTheme.titleMedium,
-                                            )
-                                          ],
-                                        ),
-                                      ],
+                                    FloatingPlayerInformationWidget(
+                                        data: snapshot.data
                                     ),
 
-                                    Row(
-                                      mainAxisAlignment: MainAxisAlignment.center,
-                                      children: [
-
-                                        if (isMusicPlayerReady && snapshot.data != null)
-                                          GestureDetector(
-                                              onTap: () { widget.bloc.handleVideoPlayerVisibilityButtonTapped(); },
-                                              child: Icon(
-                                                  MusicPlayerResources.getVideoVisibilityButtonIconBasedOnState(snapshot.data!.videoVisibilityState)
-                                              )
-                                          ),
-
-                                        const SizedBox(width: 16),
-
-                                        GestureDetector(
-                                          onTap: () { widget.bloc.handleNextReproductionStateButtonTapped(); },
-                                          child: Icon(
-                                              MusicPlayerResources.getReproductionButtonIconBasedOnState(snapshot.data)
-                                          ),
-                                        )
-                                      ],
+                                    FloatingPlayerButtonsWidget(
+                                        isMusicPlayerReady: isMusicPlayerReady,
+                                        bloc: widget.bloc,
+                                        data: snapshot.data
                                     )
                                   ],
                                 ),
@@ -154,3 +111,7 @@ class _FloatingMusicPlayer extends State<FloatingMusicPlayer> with WidgetsBindin
 
 
 }
+
+
+
+
