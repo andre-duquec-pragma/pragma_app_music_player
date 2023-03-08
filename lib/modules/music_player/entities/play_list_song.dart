@@ -1,34 +1,52 @@
 import 'package:youtube_player_flutter/youtube_player_flutter.dart';
 
 class PlayListSong {
-  final String url;
-  final String name;
+  final int? indexRow;
+  final String urlYoutube;
+  final String songName;
+  final int idPragmatic;
+  final String? message;
   final bool isActive;
 
   const PlayListSong({
-    required this.url,
-    required this.name,
+    this.indexRow,
+    required this.urlYoutube,
+    required this.songName,
+    required this.idPragmatic,
+    this.message,
     this.isActive = false,
   });
 
   PlayListSong copyWith({
-    String? url,
-    String? name,
+    int? indexRow,
+    String? urlYoutube,
+    String? songName,
+    int? idPragmatic,
     bool? isActive,
   }) {
     return PlayListSong(
-      url: url ?? this.url,
-      name: name ?? this.name,
+      indexRow: indexRow ?? this.indexRow,
+      urlYoutube: urlYoutube ?? this.urlYoutube,
+      songName: songName ?? this.songName,
+      idPragmatic: idPragmatic ?? this.idPragmatic,
       isActive: isActive ?? this.isActive
     );
   }
 
   String? getId() {
-    return YoutubePlayer.convertUrlToId(url);
+    return YoutubePlayer.convertUrlToId(urlYoutube);
   }
 
+  static PlayListSong fromJSON(Map<String, dynamic> json) => PlayListSong(
+      indexRow: int.parse(json["indexRow"]),
+      urlYoutube: json["urlYoutube"],
+      songName: json["songName"],
+      idPragmatic: int.parse(json["idPragmatic"]),
+      message: json["message"]
+  );
+
   Map<String, dynamic> toJSON() => {
-    "url" : url,
-    "name": name
+    "url" : urlYoutube,
+    "name": songName
   };
 }

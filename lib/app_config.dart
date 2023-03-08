@@ -13,6 +13,7 @@ import 'package:music_station/modules/music_player/utils/music_player_bloc_facto
 import 'package:music_station/modules/not_found/ui/not_found_page.dart';
 import 'package:music_station/providers/session_service_factory.dart';
 import 'package:music_station/services/session_service.dart';
+import 'package:package_google_sign_in/service/service_google_sign_in.dart';
 
 import 'blocs/bloc_processing.dart';
 import 'blocs/bloc_responsive.dart';
@@ -84,10 +85,19 @@ Future<void> _setDefaultBlocModules() async {
 }
 
 Future<void> _setSessionBasedBlocModules() async {
+  /*
   if (!await _sessionService.isActive) {
-    blocCore.addBlocModule<LoginBloc>(LoginBloc.name, LoginBloc());
+      blocCore.addBlocModule<GoogleSignInBloc>(
+          GoogleSignInBloc.name,
+          GoogleSignInBloc(googleSignInService: GoogleSignInService())
+      );
     return;
   }
+*/
+  blocCore.addBlocModule<GoogleSignInBloc>(
+      GoogleSignInBloc.name,
+      GoogleSignInBloc(googleSignInService: GoogleSignInService())
+  );
 
   blocCore.addBlocModule<HomeBloc>(
       HomeBloc.name,
@@ -96,12 +106,12 @@ Future<void> _setSessionBasedBlocModules() async {
 
   blocCore.addBlocModule(
       MusicPlayerBloc.name,
-      MusicPlayerBlocFactory.get()
+      await MusicPlayerBlocFactory.get()
   );
 }
 
 Future<void> _setSessionBasedAvailablePages() async {
-  if (!await _sessionService.isActive) return;
+  //if (!await _sessionService.isActive) return;
 
   Map<String, Widget> availablePages = {
     MusicPlayerPage.name : MusicPlayerPage(
@@ -134,7 +144,9 @@ OnboardingBloc _createOnBoardingBloc() {
 Future<Widget> _getInitialPage() async {
   try {
     if(!await _sessionService.isActive) {
-      return const LoginPage();
+      return LoginPage(
+          bloc: blocCore.getBlocModule<GoogleSignInBloc>(GoogleSignInBloc.name)
+      );
     }
 
     return HomePage(

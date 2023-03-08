@@ -30,7 +30,7 @@ class FloatingPlayerInformationWidget extends StatelessWidget {
               style: Theme.of(context).textTheme.titleSmall,
             ),
             Text(
-              _data?.currentSong?.name ?? "------",
+              _data?.currentSong?.songName ?? "------",
               style: Theme.of(context).textTheme.titleMedium,
             )
           ],

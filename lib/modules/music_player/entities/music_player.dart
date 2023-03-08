@@ -28,6 +28,6 @@ class MusicPlayer {
 
   @override
   String toString() {
-    return "state: $state | song: ${currentSong?.name}";
+    return "state: $state | song: ${currentSong?.songName}";
   }
 }

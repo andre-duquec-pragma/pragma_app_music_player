@@ -39,8 +39,13 @@ dependencies:
   flutter_launcher_icons: ^0.11.0
   google_fonts: ^4.0.3
   youtube_player_flutter: ^8.1.2
+  google_sign_in: ^5.4.1
+  firebase_core: ^2.4.1
   # youtube_player_iframe: ^4.0.4
 
+  package_google_sign_in:
+    git:
+      url: https://github.com/rodolgira/package_google_sign_in.git
 
 # configuracion Splash screen
 flutter_native_splash:

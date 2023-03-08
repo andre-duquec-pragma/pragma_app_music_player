@@ -150,7 +150,7 @@ class MusicPlayerPage extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        bloc.playlist[index].name,
+                        bloc.playlist[index].songName,
                         style: TextStyle(
                             fontSize: Theme.of(context).textTheme.titleMedium?.fontSize ?? 12,
                             fontWeight: FontWeight.bold,

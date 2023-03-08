@@ -8,5 +8,5 @@ class TestSessionService implements SessionService {
   Future<String> get currentUser => Future.value("Test User");
 
   @override
-  Future<bool> get isActive => Future.value(true);
+  Future<bool> get isActive => Future.value(false);
 }
