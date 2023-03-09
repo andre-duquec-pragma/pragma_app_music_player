@@ -18,7 +18,7 @@ class MusicPlayerPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    bloc.loadSongs();
+    bloc.start();
     return _buildPage(
         context: context,
         body: StreamBuilder(
@@ -168,7 +168,7 @@ class MusicPlayerPage extends StatelessWidget {
                     ],
                   ),
                   trailing: _buildReproductionAnimation(
-                      isSongActive:  bloc.playlist[index].isActive
+                      isSongActive:  bloc.playlist[index].isPlaying && bloc.value.state == MusicPlayerState.playing
                   ),
                 ),
               );

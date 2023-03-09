@@ -5,6 +5,8 @@ import '../../classroom/ui/classroom_page.dart';
 import '../../music_player/ui/pages/music_player_page.dart';
 
 class HomePage extends StatelessWidget {
+  static String name = "homePage";
+
   final String user;
   final HomeBloc bloc;
 

@@ -181,9 +181,11 @@ class GoogleSheetService implements IGoogleSheetService {
 
 
   final IGoogleSheetProvider googleSheetProvider;
-  static String sheetName = '';
-  static List<String> sheetRange = [];
+  String _sheetName = '';
+  List<String> _sheetRange = [];
 
+  String get sheetName => _sheetName;
+  List<String> get sheetRange => _sheetRange;
 
   @override
   Future<void> initInstanceOfGoogleSheetProvider() {
@@ -194,8 +196,8 @@ class GoogleSheetService implements IGoogleSheetService {
 
   @override
   void intiSheetConfig(String nameOfSheet, List<String> rangeOfSheet) {
-    sheetName = nameOfSheet;
-    sheetRange = rangeOfSheet;
+    _sheetName = nameOfSheet;
+    _sheetRange = rangeOfSheet;
   }
 
 

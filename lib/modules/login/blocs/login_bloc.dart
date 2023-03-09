@@ -37,13 +37,16 @@ class GoogleSignInBloc extends BlocModule {
 
 
   Future<void> signInSilently() async {
-    final result = await googleSignInService.signInSilently();
+    await googleSignInService.signInSilently();
+  }
+
+  void closeStream() {
+    _controllerStateUser.close();
   }
 
   @override
   FutureOr<void> dispose() {
-    _controllerStateUser.close();
-    throw UnimplementedError();
+    closeStream();
   }
 }
 

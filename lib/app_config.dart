@@ -114,6 +114,12 @@ Future<void> _setSessionBasedAvailablePages() async {
   //if (!await _sessionService.isActive) return;
 
   Map<String, Widget> availablePages = {
+
+    HomePage.name : HomePage(
+      user: await _sessionService.currentUser,
+      bloc: blocCore.getBlocModule<HomeBloc>(HomeBloc.name)
+    ),
+
     MusicPlayerPage.name : MusicPlayerPage(
       bloc: blocCore.getBlocModule<MusicPlayerBloc>(MusicPlayerBloc.name)
     ),

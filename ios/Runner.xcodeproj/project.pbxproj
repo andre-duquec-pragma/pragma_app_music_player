@@ -14,13 +14,13 @@
 		97C146FC1CF9000F007C117D /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 97C146FA1CF9000F007C117D /* Main.storyboard */; };
 		97C146FE1CF9000F007C117D /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 97C146FD1CF9000F007C117D /* Assets.xcassets */; };
 		97C147011CF9000F007C117D /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 97C146FF1CF9000F007C117D /* LaunchScreen.storyboard */; };
-		DA51419C29B8D8E7007A94C8 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = DA51419B29B8D8E7007A94C8 /* GoogleService-Info.plist */; };
 		DAB19B9A29AE85F5003197E9 /* MusicPlayerMethodChannel.swift in Sources */ = {isa = PBXBuildFile; fileRef = DAB19B9929AE85F5003197E9 /* MusicPlayerMethodChannel.swift */; };
 		DAB19B9C29AE8647003197E9 /* MethodChannels.swift in Sources */ = {isa = PBXBuildFile; fileRef = DAB19B9B29AE8647003197E9 /* MethodChannels.swift */; };
 		DAB19B9F29AE9CFA003197E9 /* MusicPlayerMethods.swift in Sources */ = {isa = PBXBuildFile; fileRef = DAB19B9E29AE9CFA003197E9 /* MusicPlayerMethods.swift */; };
 		DAB19BA129AE9D11003197E9 /* PlayListSong.swift in Sources */ = {isa = PBXBuildFile; fileRef = DAB19BA029AE9D11003197E9 /* PlayListSong.swift */; };
 		DAB19BA329AE9D54003197E9 /* MethodChannel.swift in Sources */ = {isa = PBXBuildFile; fileRef = DAB19BA229AE9D54003197E9 /* MethodChannel.swift */; };
 		DAB19BA529AE9D7E003197E9 /* MethodChannelFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = DAB19BA429AE9D7E003197E9 /* MethodChannelFactory.swift */; };
+		DADFE60729BA7B2300CBDC37 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = DADFE60629BA7B2300CBDC37 /* GoogleService-Info.plist */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -54,13 +54,13 @@
 		97C147021CF9000F007C117D /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		B7386E984222FB602643C53E /* Pods-Runner.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Runner.release.xcconfig"; path = "Target Support Files/Pods-Runner/Pods-Runner.release.xcconfig"; sourceTree = "<group>"; };
 		D047513904264A9FF4EF760B /* Pods_Runner.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Runner.framework; sourceTree = BUILT_PRODUCTS_DIR; };
-		DA51419B29B8D8E7007A94C8 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = "GoogleService-Info.plist"; path = "../../../../../Downloads/GoogleService-Info.plist"; sourceTree = "<group>"; };
 		DAB19B9929AE85F5003197E9 /* MusicPlayerMethodChannel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MusicPlayerMethodChannel.swift; sourceTree = "<group>"; };
 		DAB19B9B29AE8647003197E9 /* MethodChannels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MethodChannels.swift; sourceTree = "<group>"; };
 		DAB19B9E29AE9CFA003197E9 /* MusicPlayerMethods.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MusicPlayerMethods.swift; sourceTree = "<group>"; };
 		DAB19BA029AE9D11003197E9 /* PlayListSong.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlayListSong.swift; sourceTree = "<group>"; };
 		DAB19BA229AE9D54003197E9 /* MethodChannel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MethodChannel.swift; sourceTree = "<group>"; };
 		DAB19BA429AE9D7E003197E9 /* MethodChannelFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MethodChannelFactory.swift; sourceTree = "<group>"; };
+		DADFE60629BA7B2300CBDC37 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -126,7 +126,7 @@
 		97C146F01CF9000F007C117D /* Runner */ = {
 			isa = PBXGroup;
 			children = (
-				DA51419B29B8D8E7007A94C8 /* GoogleService-Info.plist */,
+				DADFE60629BA7B2300CBDC37 /* GoogleService-Info.plist */,
 				DAB19B9829AE85DD003197E9 /* MethodChannels */,
 				97C146FA1CF9000F007C117D /* Main.storyboard */,
 				97C146FD1CF9000F007C117D /* Assets.xcassets */,
@@ -226,7 +226,7 @@
 			files = (
 				97C147011CF9000F007C117D /* LaunchScreen.storyboard in Resources */,
 				3B3967161E833CAA004F5970 /* AppFrameworkInfo.plist in Resources */,
-				DA51419C29B8D8E7007A94C8 /* GoogleService-Info.plist in Resources */,
+				DADFE60729BA7B2300CBDC37 /* GoogleService-Info.plist in Resources */,
 				97C146FE1CF9000F007C117D /* Assets.xcassets in Resources */,
 				97C146FC1CF9000F007C117D /* Main.storyboard in Resources */,
 			);

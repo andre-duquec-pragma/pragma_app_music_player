@@ -6,7 +6,7 @@ class PlayListSong {
   final String songName;
   final int idPragmatic;
   final String? message;
-  final bool isActive;
+  final bool isPlaying;
 
   const PlayListSong({
     this.indexRow,
@@ -14,7 +14,7 @@ class PlayListSong {
     required this.songName,
     required this.idPragmatic,
     this.message,
-    this.isActive = false,
+    this.isPlaying = false,
   });
 
   PlayListSong copyWith({
@@ -22,14 +22,14 @@ class PlayListSong {
     String? urlYoutube,
     String? songName,
     int? idPragmatic,
-    bool? isActive,
+    bool? isPlaying,
   }) {
     return PlayListSong(
       indexRow: indexRow ?? this.indexRow,
       urlYoutube: urlYoutube ?? this.urlYoutube,
       songName: songName ?? this.songName,
       idPragmatic: idPragmatic ?? this.idPragmatic,
-      isActive: isActive ?? this.isActive
+      isPlaying: isPlaying ?? this.isPlaying
     );
   }
 
