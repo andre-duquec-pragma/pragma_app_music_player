@@ -6,8 +6,9 @@ class MusicPlayer {
   final PlayListSong? currentSong;
   final MusicPlayerState state;
   final VideoPlayerVisibilityState videoVisibilityState;
+  final DateTime? lastStateChangeTime;
 
-  const MusicPlayer({this.currentSong, required this.state, required this.videoVisibilityState});
+  const MusicPlayer({this.currentSong, required this.state, required this.videoVisibilityState, this.lastStateChangeTime});
 
   bool get isActive => ( state != MusicPlayerState.closed && state != MusicPlayerState.songsLoaded && state != MusicPlayerState.notSongsAvailable );
   bool get isPlaying => (state == MusicPlayerState.playing);
@@ -17,13 +18,24 @@ class MusicPlayer {
   MusicPlayer copyWith({
     PlayListSong? currentSong,
     MusicPlayerState? state,
-    VideoPlayerVisibilityState? videoVisibilityState
+    VideoPlayerVisibilityState? videoVisibilityState,
+    DateTime? lastStateChangeTime
   }) {
     return MusicPlayer(
         currentSong: currentSong ?? this.currentSong,
         state: state ?? this.state,
-        videoVisibilityState: videoVisibilityState ?? this.videoVisibilityState
+        videoVisibilityState: videoVisibilityState ?? this.videoVisibilityState,
+        lastStateChangeTime: lastStateChangeTime ?? this.lastStateChangeTime
     );
+  }
+
+  bool isSongStillTheCurrentSong(Duration currentSongDuration) {
+    if (lastStateChangeTime == null) return false;
+
+    DateTime currentTime = DateTime.now();
+    DateTime songEndTime = lastStateChangeTime!.add(currentSongDuration);
+
+    return songEndTime.isAfter(currentTime);
   }
 
   @override

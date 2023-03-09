@@ -171,7 +171,9 @@ class BrandMusicPlayerBloc implements MusicPlayerBloc {
   }
 
   void _updateMusicPlayer(MusicPlayer musicPlayer) {
-    _musicPlayerBloc.value = musicPlayer;
+    _musicPlayerBloc.value = musicPlayer.copyWith(
+        lastStateChangeTime: DateTime.now()
+    );
   }
 
   @override
@@ -181,7 +183,9 @@ class BrandMusicPlayerBloc implements MusicPlayerBloc {
         : VideoPlayerVisibilityState.hidden;
 
     _updateMusicPlayer(
-      value.copyWith(videoVisibilityState: newState)
+      value.copyWith(
+          videoVisibilityState: newState
+      )
     );
   }
 
@@ -202,9 +206,19 @@ class BrandMusicPlayerBloc implements MusicPlayerBloc {
   }
 
   void _play() {
+
+    Duration currentSongDuration = musicPlayerController.metadata.duration;
+
+    if(!value.isSongStillTheCurrentSong(currentSongDuration)) {
+      _songs.clear();
+      _tryReproduceNextSong();
+      return;
+    }
+
     _updateMusicPlayer(
       value.copyWith(state: MusicPlayerState.playing)
     );
+
     musicPlayerController.play();
   }
 
