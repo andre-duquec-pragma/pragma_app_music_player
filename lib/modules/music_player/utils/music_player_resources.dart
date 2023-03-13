@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:music_station/modules/music_player/utils/video_player_visibility_state.dart';
 
-import '../entities/music_player.dart';
+import '../models/music_player_model.dart';
 import 'music_player_state.dart';
 
 class MusicPlayerResources {

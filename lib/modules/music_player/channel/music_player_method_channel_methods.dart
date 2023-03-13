@@ -1,6 +1,8 @@
 enum MusicPlayerMethodChannelMethods {
   prepareForReproduceInBackground("prepareForReproduceInBackground"),
-  prepareForReproduceInForeground("prepareForReproduceInForeground");
+  prepareForReproduceInForeground("prepareForReproduceInForeground"),
+  play("play"),
+  pause("pause");
 
   const MusicPlayerMethodChannelMethods(this.value);
   final String value;

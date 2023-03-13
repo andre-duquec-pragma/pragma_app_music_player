@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../../entities/music_player.dart';
+import '../../models/music_player_model.dart';
 import '../../utils/music_player_resources.dart';
 
 class FloatingPlayerInformationWidget extends StatelessWidget {

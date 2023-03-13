@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:music_station/modules/music_player/utils/video_player_visibility_state.dart';
 
 import '../../bloc/music_player_bloc.dart';
-import '../../entities/music_player.dart';
+import '../../models/music_player_model.dart';
 import 'external_video_player_widget.dart';
 import 'floating_player_buttons_widget.dart';
 import 'floating_player_information_widget.dart';

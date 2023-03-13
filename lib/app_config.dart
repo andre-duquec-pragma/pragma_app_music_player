@@ -9,7 +9,6 @@ import 'package:music_station/modules/login/blocs/login_bloc.dart';
 import 'package:music_station/modules/login/ui/page/login_page.dart';
 import 'package:music_station/modules/music_player/bloc/music_player_bloc.dart';
 import 'package:music_station/modules/music_player/ui/pages/music_player_page.dart';
-import 'package:music_station/modules/music_player/utils/music_player_bloc_factory.dart';
 import 'package:music_station/modules/not_found/ui/not_found_page.dart';
 import 'package:music_station/providers/session_service_factory.dart';
 import 'package:music_station/services/session_service.dart';
@@ -21,6 +20,10 @@ import 'blocs/navigator_bloc.dart';
 import 'blocs/onboarding_bloc.dart';
 import 'blocs/theme_bloc.dart';
 import 'entities/entity_bloc.dart';
+import 'modules/music_player/bloc/brand_music_player_bloc.dart';
+import 'modules/music_player/bloc/config_sheet_player_current_song.dart';
+import 'modules/music_player/bloc/config_sheet_player_playlist.dart';
+import 'modules/music_player/channel/brand_music_player_method_channel.dart';
 import 'providers/my_app_navigator_provider.dart';
 import 'services/theme_config.dart';
 import 'services/theme_service.dart';
@@ -104,9 +107,13 @@ Future<void> _setSessionBasedBlocModules() async {
       HomeBlocFactory.get()
   );
 
-  blocCore.addBlocModule(
+  blocCore.addBlocModule<MusicPlayerBloc>(
       MusicPlayerBloc.name,
-      await MusicPlayerBlocFactory.get()
+      BrandMusicPlayerBloc(
+          channel: BrandMusicPlayerMethodChannel(),
+          playlistGoogleSheetService: googleSheetForPlayList,
+          currentSongGoogleSheetService: googleSheetForCurrentSong
+      )
   );
 }
 

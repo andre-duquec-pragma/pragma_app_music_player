@@ -1,5 +1,5 @@
 import 'package:flutter/services.dart';
-import 'package:music_station/modules/music_player/entities/play_list_song.dart';
+import '../models/play_list_song_model.dart';
 
 abstract class MusicPlayerMethodChannel {
   Future<void> prepareToReproduceInBackground(PlayListSong? currentSong);
@@ -7,5 +7,4 @@ abstract class MusicPlayerMethodChannel {
   Future<void> prepareToReproduceInForeground();
 
   Future<void> onListenerPlayer(Function(MethodCall call) functionCallback);
-
 }

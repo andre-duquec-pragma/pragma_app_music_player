@@ -1,7 +1,7 @@
 import 'package:flutter/services.dart';
 import 'package:music_station/modules/music_player/channel/music_player_method_channel_methods.dart';
-import 'package:music_station/modules/music_player/entities/play_list_song.dart';
 
+import '../models/play_list_song_model.dart';
 import 'music_player_method_channel.dart';
 
 class BrandMusicPlayerMethodChannel implements MusicPlayerMethodChannel {

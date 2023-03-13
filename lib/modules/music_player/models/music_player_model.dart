@@ -1,5 +1,5 @@
 import '../utils/video_player_visibility_state.dart';
-import 'play_list_song.dart';
+import 'play_list_song_model.dart';
 import '../utils/music_player_state.dart';
 
 class MusicPlayer {

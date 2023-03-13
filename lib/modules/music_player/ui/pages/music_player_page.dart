@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:music_station/modules/music_player/bloc/music_player_bloc.dart';
-import 'package:music_station/modules/music_player/entities/music_player.dart';
+
 import 'package:music_station/modules/music_player/ui/widgets/music_reproduction_animation_widget.dart';
 import 'package:music_station/modules/music_player/utils/music_player_resources.dart';
 import 'package:music_station/modules/music_player/utils/music_player_state.dart';
 
+import '../../models/music_player_model.dart';
 import '../widgets/floating_music_player_widget.dart';
 
 class MusicPlayerPage extends StatelessWidget {
@@ -51,7 +52,7 @@ class MusicPlayerPage extends StatelessWidget {
           title: const Text('Music player'),
           leading: IconButton(
               icon: const Icon(Icons.arrow_back),
-              onPressed: () => { bloc.back() }),
+              onPressed: () => { bloc.goBackInNavigation() }),
         ),
         body: body,
       ),

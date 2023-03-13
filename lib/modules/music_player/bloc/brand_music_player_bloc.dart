@@ -1,37 +1,48 @@
 import 'dart:async';
 import 'dart:ui';
 
-import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
-import 'package:music_station/modules/music_player/utils/execute_attempts_helper.dart';
-import 'package:music_station/modules/music_player/utils/video_player_visibility_state.dart';
+import 'package:music_station/modules/music_player/channel/music_player_method_channel_methods.dart';
 import 'package:youtube_player_flutter/youtube_player_flutter.dart';
 
 import '../../../app_config.dart';
 import '../../../blocs/navigator_bloc.dart';
 import '../../../entities/entity_bloc.dart';
+import '../../../providers/my_app_navigator_provider.dart';
+import '../../google_sheets/service/google_sheets_service.dart';
 import '../channel/music_player_method_channel.dart';
-import '../entities/music_player.dart';
-import '../entities/play_list_song.dart';
-import '../repository/music_player_repository.dart';
+
+import '../models/current_song_model.dart';
+import '../models/music_player_model.dart';
+import '../models/play_list_song_model.dart';
+import '../utils/execute_attempts_helper.dart';
 import '../utils/music_player_state.dart';
+import '../utils/video_player_visibility_state.dart';
+import 'config_sheet_player_current_song.dart';
+import 'config_sheet_player_playlist.dart';
 import 'music_player_bloc.dart';
 
 class BrandMusicPlayerBloc implements MusicPlayerBloc {
+  //region Class properties
   final List<PlayListSong> _songs = [];
-  final MusicPlayerRepository _playListRepository;
-  final CurrentSongRepository _currentSongRepository;
+  final GoogleSheetService _playlistGoogleSheetService;
+  final GoogleSheetService _currentSongGoogleSheetService;
   final MusicPlayerMethodChannel _channel;
+  //endregion
 
+  //region Class life cycle
   BrandMusicPlayerBloc({
-    required MusicPlayerRepository playListRepository,
-    required CurrentSongRepository currentSongRepository,
+    required GoogleSheetService playlistGoogleSheetService,
+    required GoogleSheetService currentSongGoogleSheetService,
     required MusicPlayerMethodChannel channel
   })
-      : _playListRepository = playListRepository,
-        _currentSongRepository = currentSongRepository,
-        _channel = channel {
-    _listenMusicPlayerChanges();
+      : _playlistGoogleSheetService = playlistGoogleSheetService,
+        _currentSongGoogleSheetService = currentSongGoogleSheetService,
+        _channel = channel
+  {
+    stream.listen((event) {
+      debugPrint("Music player update -> $event");
+    });
 
     musicPlayerController = YoutubePlayerController(
       initialVideoId: '',
@@ -45,6 +56,13 @@ class BrandMusicPlayerBloc implements MusicPlayerBloc {
     );
   }
 
+  @override
+  FutureOr<void> dispose() {
+    _musicPlayerBloc.dispose();
+  }
+  //endregion
+
+  //region Bloc general
   final BlocGeneral<MusicPlayer> _musicPlayerBloc =
     BlocGeneral(
       const MusicPlayer(
@@ -52,7 +70,9 @@ class BrandMusicPlayerBloc implements MusicPlayerBloc {
         videoVisibilityState: VideoPlayerVisibilityState.hidden
       )
     );
+  //endregion
 
+  //region Override properties
   @override
   late YoutubePlayerController musicPlayerController;
 
@@ -64,84 +84,113 @@ class BrandMusicPlayerBloc implements MusicPlayerBloc {
 
   @override
   List<PlayListSong> get playlist => _songs;
+  //endregion
 
-  void _listenMusicPlayerChanges() {
-    stream.listen((event) {
-      debugPrint("Music player update -> $event");
-    });
-  }
+  //region Sheets Service
+  Future<int?> _getCurrentSongId() async {
+    await ConfigGoogleSheetCurrentSongBloc().initConfig();
 
-  Future<void> _getPlaylistSongs() async {
-    List<PlayListSong> songs = await _playListRepository.getSongs();
-    int? currentSongId = await _currentSongRepository.getCurrentSongId();
-
-    int currentSongIndex = currentSongId != null
-        ? songs.indexWhere((element) => element.indexRow == currentSongId)
-        : 0;
-
-    if (songs.isNotEmpty) {
-      songs[currentSongIndex] = songs[currentSongIndex].copyWith(isPlaying: true);
-    }
-
-    _songs.addAll(songs);
-  }
-
-  @override
-  Future<void> start() async {
-    if(value.state != MusicPlayerState.closed) return;
-
-    await Future.delayed(const Duration(seconds: 1));
-
-    _updateMusicPlayer(
-      value.copyWith(state: MusicPlayerState.open)
+    List<dynamic>? list = await _currentSongGoogleSheetService.getAllDataOfSheet(
+        CurrentSong.fromJSON,
+        _currentSongGoogleSheetService.sheetName,
+        '${_currentSongGoogleSheetService.sheetRange.first}:${_currentSongGoogleSheetService.sheetRange.last}'
     );
 
-    await _loadSongs(onSongsLoaded: () => {_reproduceNextSong()});
+    if (list == null) return null;
+
+    return list.cast<CurrentSong>().first.idPlayList;
   }
 
-  Future<void> _loadSongs({required VoidCallback onSongsLoaded}) async {
-    await _getPlaylistSongs();
+  Future<List<PlayListSong>> _getSongs() async {
+
+    await ConfigGoogleSheetPlayListBloc().initConfig();
+
+    List<dynamic>? list = await _playlistGoogleSheetService.getAllDataOfSheet(
+        PlayListSong.fromJSON,
+        _playlistGoogleSheetService.sheetName,
+        '${_playlistGoogleSheetService.sheetRange.first}:${_playlistGoogleSheetService.sheetRange.last}'
+    );
+
+    if (list == null) return [];
+
+    return list.cast<PlayListSong>();
+  }
+  //endregion
+
+  //region Playlist controls
+  Future<void> _tryLoadPlaylistSongs({required VoidCallback onSongsLoaded}) async {
+    await _loadPlaylistSongs();
 
     if (_songs.isEmpty) {
-      _updateMusicPlayer(
-          value.copyWith(state: MusicPlayerState.notSongsAvailable)
-      );
+      _updateMusicPlayer(value.copyWith(state: MusicPlayerState.notSongsAvailable));
       return;
     }
 
     onSongsLoaded();
   }
 
-  Future<void> _reproduceNextSong() async {
-    PlayListSong song = _songs.firstWhere((element) => element.isPlaying);
-    String? songId = song.getId();
+  Future<void> _loadPlaylistSongs() async {
+    List<PlayListSong> songs = await _getSongs();
+    int? currentSongId = await _getCurrentSongId();
 
-    if (songId == null) {
-      _updateMusicPlayer(
-        value.copyWith(state: MusicPlayerState.notSongsAvailable)
-      );
-      return;
+    int currentSongIndex = currentSongId != null
+        ? songs.indexWhere((element) => element.indexRow == currentSongId)
+        : 0;
+
+    if (songs.isNotEmpty) {
+      _updateCurrentPlayingSongState(currentSongIndex, true);
     }
 
-    bool musicPlayerIsStarted = await _tryStartMusicPlayer(songId);
+    _songs.addAll(songs);
+  }
 
-    if (!musicPlayerIsStarted) {
-      _handleMusicPlayerNotStarted();
-      return;
-    }
+  int _findAndUpdateCurrentPlayingSongState(int? id, bool newState) {
+    int songIndex = _songs.indexWhere((element) => element.indexRow == id);
+    _updateCurrentPlayingSongState(songIndex, newState);
+    return songIndex;
+  }
 
-    _updateMusicPlayer(
-      value.copyWith(currentSong: song, state: MusicPlayerState.playing)
+  void _updateCurrentPlayingSongState(int index, bool newState) {
+    _songs[index] = _songs[index].copyWith(isPlaying: newState);
+  }
+  //endregion
+
+  //region Music player life cycle
+  @override
+  Future<void> start() async {
+    if(value.state != MusicPlayerState.closed) return;
+
+    await Future.delayed(const Duration(seconds: 1));
+
+    _updateMusicPlayer(value.copyWith(state: MusicPlayerState.open));
+
+    await _tryLoadPlaylistSongs(
+        onSongsLoaded: () => { _reproduceNextSong() }
     );
   }
 
-  void _handleMusicPlayerNotStarted() {
-    _updateMusicPlayer(
-      value.copyWith(state: MusicPlayerState.notSongsAvailable)
-    );
+  @override
+  Future<void> handleEndedSong() async {
+    _updateMusicPlayer(value.copyWith(state: MusicPlayerState.changingSong));
+
+    int songIndex = _findAndUpdateCurrentPlayingSongState(value.currentSong?.indexRow, false);
+
+    int newIndex = songIndex + 1;
+    newIndex >= _songs.length
+        ? _songs.clear()
+        : _updateCurrentPlayingSongState(newIndex, true);
+
+    await _tryReproduceNextSong();
+  }
+
+  @override
+  Future<void> close() async {
     musicPlayerController.reset();
+    _updateMusicPlayer(value.copyWith(state: MusicPlayerState.closed));
   }
+  //endregion
 
+  //region Music player controls
   bool _isMusicPlayerReadyToPlay() => (musicPlayerController.value.isReady ||
       musicPlayerController.value.isPlaying);
 
@@ -150,7 +199,8 @@ class BrandMusicPlayerBloc implements MusicPlayerBloc {
         functionToExecute: () => {musicPlayerController.load(songId)},
         executionCondition: _isMusicPlayerReadyToPlay,
         timeBetweenAttempts: const Duration(seconds: 1),
-        functionDescription: "Start music player");
+        functionDescription: "Start music player"
+    );
   }
 
   Future<void> _tryReproduceNextSong() async {
@@ -159,34 +209,66 @@ class BrandMusicPlayerBloc implements MusicPlayerBloc {
       return;
     }
 
-    await _loadSongs(onSongsLoaded: () => {_reproduceNextSong()});
+    await _tryLoadPlaylistSongs(
+        onSongsLoaded: () => { _reproduceNextSong() }
+    );
   }
 
-  @override
-  Future<void> close() async {
+  Future<void> _reproduceNextSong() async {
+    PlayListSong song = _songs.firstWhere((element) => element.isPlaying);
+    String? songId = song.getId();
+
+    if (songId == null) {
+      _updateMusicPlayer(value.copyWith(state: MusicPlayerState.notSongsAvailable));
+      return;
+    }
+
+    bool isMusicPlayerStarted = await _tryStartMusicPlayer(songId);
+
+    if (!isMusicPlayerStarted) {
+      _handleMusicPlayerNotStarted();
+      return;
+    }
+
+    _updateMusicPlayer(value.copyWith(currentSong: song, state: MusicPlayerState.playing));
+  }
+
+  void _handleMusicPlayerNotStarted() {
+    _updateMusicPlayer(value.copyWith(state: MusicPlayerState.notSongsAvailable));
     musicPlayerController.reset();
-    _updateMusicPlayer(
-      value.copyWith(state: MusicPlayerState.closed)
-    );
   }
 
   void _updateMusicPlayer(MusicPlayer musicPlayer) {
-    _musicPlayerBloc.value = musicPlayer.copyWith(
-        lastStateChangeTime: DateTime.now()
-    );
+    _musicPlayerBloc.value = musicPlayer.copyWith(lastStateChangeTime: DateTime.now());
   }
 
+  void _pause() {
+    _updateMusicPlayer(value.copyWith(state: MusicPlayerState.pause));
+    musicPlayerController.pause();
+  }
+
+  void _play() {
+    Duration currentSongDuration = musicPlayerController.metadata.duration;
+
+    if(!value.isSongStillTheCurrentSong(currentSongDuration)) {
+      _songs.clear();
+      _tryReproduceNextSong();
+      return;
+    }
+
+    _updateMusicPlayer(value.copyWith(state: MusicPlayerState.playing));
+    musicPlayerController.play();
+  }
+  //endregion
+
+  //region UI interactions handlers
   @override
   void handleVideoPlayerVisibilityButtonTapped() {
     VideoPlayerVisibilityState newState = value.videoVisibilityState == VideoPlayerVisibilityState.hidden
         ? VideoPlayerVisibilityState.visible
         : VideoPlayerVisibilityState.hidden;
 
-    _updateMusicPlayer(
-      value.copyWith(
-          videoVisibilityState: newState
-      )
-    );
+    _updateMusicPlayer(value.copyWith(videoVisibilityState: newState));
   }
 
   @override
@@ -198,35 +280,13 @@ class BrandMusicPlayerBloc implements MusicPlayerBloc {
         : _play();
   }
 
-  void _pause() {
-    _updateMusicPlayer(
-      value.copyWith(state: MusicPlayerState.pause)
-    );
-    musicPlayerController.pause();
-  }
-
-  void _play() {
-
-    Duration currentSongDuration = musicPlayerController.metadata.duration;
-
-    if(!value.isSongStillTheCurrentSong(currentSongDuration)) {
-      _songs.clear();
-      _tryReproduceNextSong();
-      return;
-    }
-
-    _updateMusicPlayer(
-      value.copyWith(state: MusicPlayerState.playing)
-    );
-
-    musicPlayerController.play();
-  }
-
   @override
-  void back() {
+  void goBackInNavigation() {
     blocCore.getBlocModule<NavigatorBloc>(NavigatorBloc.name).back();
   }
+  //endregion
 
+  //region App life cycle control
   @override
   void handleAppLifecyclesChanges(AppLifecycleState newState) {
     if(newState == AppLifecycleState.inactive && value.isPlaying) {
@@ -239,27 +299,11 @@ class BrandMusicPlayerBloc implements MusicPlayerBloc {
     }
   }
 
-  void _defaultFunction(MethodCall call) {
-    switch (call.method) {
-      case 'pause':
-        debugPrint("Control pause clicked");
-        _pause();
-        break;
-      case 'play':
-        debugPrint("Control play clicked");
-        _play();
-        break;
-      default:
-        debugPrint("Invalid choice");
-        break;
-    }
-  }
-
   Future<void> _handleAppInBackground() async {
     await Future.delayed(const Duration(seconds: 1, milliseconds: 500), () {
       _play();
       _channel.prepareToReproduceInBackground(value.currentSong);
-      _channel.onListenerPlayer(_defaultFunction);
+      _channel.onListenerPlayer(_listenNativeOSMethodCalls);
     });
   }
 
@@ -268,27 +312,15 @@ class BrandMusicPlayerBloc implements MusicPlayerBloc {
     _channel.prepareToReproduceInForeground();
   }
 
-  @override
-  Future<void> handleEndedSong() async {
-    _updateMusicPlayer(
-      value.copyWith(state: MusicPlayerState.changingSong)
-    );
+  void _listenNativeOSMethodCalls(MethodCall call) {
+    String method = call.method;
+    debugPrint("::: Native call received: $method :::");
 
-    int songIndex = _songs.indexWhere((element) => element.indexRow == value.currentSong?.indexRow);
-    _songs[songIndex] = _songs[songIndex].copyWith(isPlaying: false);
-
-    int newIndex = songIndex + 1;
-    if(newIndex >= _songs.length) {
-      _songs.clear();
-    } else {
-      _songs[newIndex] = _songs[newIndex].copyWith(isPlaying: true);
+    if (method == MusicPlayerMethodChannelMethods.pause.value) {
+      _pause();
+    } else if (method == MusicPlayerMethodChannelMethods.play.value) {
+      _play();
     }
-
-    await _tryReproduceNextSong();
   }
-
-  @override
-  FutureOr<void> dispose() {
-    _musicPlayerBloc.dispose();
-  }
+  //endregion
 }
