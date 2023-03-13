@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:ui';
 
 import 'package:flutter/services.dart';
+import 'package:music_station/modules/google_sheets/helpers/google_sheet_use_helper.dart';
 import 'package:music_station/modules/music_player/channel/music_player_method_channel_methods.dart';
 import 'package:youtube_player_flutter/youtube_player_flutter.dart';
 
@@ -25,19 +26,19 @@ import 'music_player_bloc.dart';
 class BrandMusicPlayerBloc implements MusicPlayerBloc {
   //region Class properties
   final List<PlayListSong> _songs = [];
-  final GoogleSheetService _playlistGoogleSheetService;
-  final GoogleSheetService _currentSongGoogleSheetService;
+  final GoogleSheetSetup _playlistGoogleSheetSetup;
+  final GoogleSheetSetup _currentSongGoogleSheetSetup;
   final MusicPlayerMethodChannel _channel;
   //endregion
 
   //region Class life cycle
   BrandMusicPlayerBloc({
-    required GoogleSheetService playlistGoogleSheetService,
-    required GoogleSheetService currentSongGoogleSheetService,
+    required GoogleSheetSetup playlistGoogleSheetService,
+    required GoogleSheetSetup currentSongGoogleSheetService,
     required MusicPlayerMethodChannel channel
   })
-      : _playlistGoogleSheetService = playlistGoogleSheetService,
-        _currentSongGoogleSheetService = currentSongGoogleSheetService,
+      : _playlistGoogleSheetSetup = playlistGoogleSheetService,
+        _currentSongGoogleSheetSetup = currentSongGoogleSheetService,
         _channel = channel
   {
     stream.listen((event) {
@@ -88,32 +89,15 @@ class BrandMusicPlayerBloc implements MusicPlayerBloc {
 
   //region Sheets Service
   Future<int?> _getCurrentSongId() async {
-    await ConfigGoogleSheetCurrentSongBloc().initConfig();
+    GoogleSheetUseHelper<CurrentSong> helper = GoogleSheetUseHelper();
+    List<CurrentSong>? list = await helper.getAllData(_currentSongGoogleSheetSetup, CurrentSong.fromJSON);
 
-    List<dynamic>? list = await _currentSongGoogleSheetService.getAllDataOfSheet(
-        CurrentSong.fromJSON,
-        _currentSongGoogleSheetService.sheetName,
-        '${_currentSongGoogleSheetService.sheetRange.first}:${_currentSongGoogleSheetService.sheetRange.last}'
-    );
-
-    if (list == null) return null;
-
-    return list.cast<CurrentSong>().first.idPlayList;
+    return list?.first.idPlayList;
   }
 
   Future<List<PlayListSong>> _getSongs() async {
-
-    await ConfigGoogleSheetPlayListBloc().initConfig();
-
-    List<dynamic>? list = await _playlistGoogleSheetService.getAllDataOfSheet(
-        PlayListSong.fromJSON,
-        _playlistGoogleSheetService.sheetName,
-        '${_playlistGoogleSheetService.sheetRange.first}:${_playlistGoogleSheetService.sheetRange.last}'
-    );
-
-    if (list == null) return [];
-
-    return list.cast<PlayListSong>();
+    GoogleSheetUseHelper<PlayListSong> helper = GoogleSheetUseHelper();
+    return await helper.getAllData(_playlistGoogleSheetSetup, PlayListSong.fromJSON) ?? [];
   }
   //endregion
 
@@ -131,17 +115,18 @@ class BrandMusicPlayerBloc implements MusicPlayerBloc {
 
   Future<void> _loadPlaylistSongs() async {
     List<PlayListSong> songs = await _getSongs();
+
+    if (songs.isEmpty) return;
+
+    _songs.addAll(songs);
+
     int? currentSongId = await _getCurrentSongId();
 
     int currentSongIndex = currentSongId != null
         ? songs.indexWhere((element) => element.indexRow == currentSongId)
         : 0;
 
-    if (songs.isNotEmpty) {
-      _updateCurrentPlayingSongState(currentSongIndex, true);
-    }
-
-    _songs.addAll(songs);
+    _updateCurrentPlayingSongState(currentSongIndex, true);
   }
 
   int _findAndUpdateCurrentPlayingSongState(int? id, bool newState) {

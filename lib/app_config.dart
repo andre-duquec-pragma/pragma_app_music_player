@@ -20,6 +20,8 @@ import 'blocs/navigator_bloc.dart';
 import 'blocs/onboarding_bloc.dart';
 import 'blocs/theme_bloc.dart';
 import 'entities/entity_bloc.dart';
+import 'modules/google_sheets/provider/google_sheets_provider.dart';
+import 'modules/google_sheets/service/google_sheets_service.dart';
 import 'modules/music_player/bloc/brand_music_player_bloc.dart';
 import 'modules/music_player/bloc/config_sheet_player_current_song.dart';
 import 'modules/music_player/bloc/config_sheet_player_playlist.dart';
@@ -111,8 +113,14 @@ Future<void> _setSessionBasedBlocModules() async {
       MusicPlayerBloc.name,
       BrandMusicPlayerBloc(
           channel: BrandMusicPlayerMethodChannel(),
-          playlistGoogleSheetService: googleSheetForPlayList,
-          currentSongGoogleSheetService: googleSheetForCurrentSong
+          playlistGoogleSheetService: GoogleSheetPlayListBlocSetup(
+              service: GoogleSheetService(googleSheetProvider: GoogleApiSheetProvider()
+            )
+          ),
+          currentSongGoogleSheetService: GoogleSheetCurrentSongBlocSetup(
+              service: GoogleSheetService(googleSheetProvider: GoogleApiSheetProvider()
+              )
+          )
       )
   );
 }

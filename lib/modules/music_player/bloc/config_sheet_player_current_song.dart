@@ -1,13 +1,19 @@
-import '../../google_sheets/provider/google_sheets_provider.dart';
+import 'package:music_station/modules/google_sheets/helpers/google_sheet_use_helper.dart';
+
 import '../../google_sheets/service/google_sheets_service.dart';
 
-GoogleSheetService googleSheetForCurrentSong =
-GoogleSheetService(googleSheetProvider: GoogleApiSheetProvider());
+class GoogleSheetCurrentSongBlocSetup extends GoogleSheetSetup {
+  final GoogleSheetService _service;
 
-class ConfigGoogleSheetCurrentSongBloc {
+  GoogleSheetCurrentSongBlocSetup({required GoogleSheetService service}) : _service = service;
+
+  @override
+  GoogleSheetService get service => _service;
+
+  @override
   Future<void> initConfig() async {
-    await googleSheetForCurrentSong.initInstanceOfGoogleSheetProvider();
+    await service.initInstanceOfGoogleSheetProvider();
     const List<String> range = ['A','A'];
-    googleSheetForCurrentSong.intiSheetConfig('MusicPlayer', range);
+    service.intiSheetConfig('MusicPlayer', range);
   }
 }
