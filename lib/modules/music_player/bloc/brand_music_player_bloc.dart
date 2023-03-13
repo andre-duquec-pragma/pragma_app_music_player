@@ -131,17 +131,18 @@ class BrandMusicPlayerBloc implements MusicPlayerBloc {
 
   Future<void> _loadPlaylistSongs() async {
     List<PlayListSong> songs = await _getSongs();
+
+    if (songs.isEmpty) return;
+
+    _songs.addAll(songs);
+
     int? currentSongId = await _getCurrentSongId();
 
     int currentSongIndex = currentSongId != null
         ? songs.indexWhere((element) => element.indexRow == currentSongId)
         : 0;
 
-    if (songs.isNotEmpty) {
-      _updateCurrentPlayingSongState(currentSongIndex, true);
-    }
-
-    _songs.addAll(songs);
+    _updateCurrentPlayingSongState(currentSongIndex, true);
   }
 
   int _findAndUpdateCurrentPlayingSongState(int? id, bool newState) {
