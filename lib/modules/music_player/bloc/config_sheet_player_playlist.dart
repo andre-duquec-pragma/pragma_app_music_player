@@ -4,7 +4,8 @@ import '../../google_sheets/service/google_sheets_service.dart';
 GoogleSheetService googleSheetForPlayList =
 GoogleSheetService(googleSheetProvider: GoogleApiSheetProvider());
 
-class ConfigSheetPlayListBloc {
+
+class ConfigGoogleSheetPlayListBloc {
   Future<void> initConfig() async {
     await googleSheetForPlayList.initInstanceOfGoogleSheetProvider();
     const List<String> range = ['A','D'];
