@@ -205,6 +205,7 @@ class GoogleApiSheetProvider implements IGoogleSheetProvider {
     try {
       sheetApi?.spreadsheets.values.append(rowList, spreadsheetId, range,
           valueInputOption: 'USER_ENTERED');
+          print('llega al provider');
       return true;
     } catch (e) {
       return false;

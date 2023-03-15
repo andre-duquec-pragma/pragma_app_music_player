@@ -1,6 +1,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:music_station/modules/music_player/ui/pages/create_favorite_song_page.dart';
 import 'package:music_station/modules/music_player/ui/pages/music_player_page.dart';
 import 'package:package_google_sign_in/service/service_google_sign_in.dart';
 
@@ -42,6 +43,7 @@ class _LoginPageState extends State<LoginPage> {
               const Text('Signed in successfully.'),
               ElevatedButton(
                   onPressed: () {
+                    print(MusicPlayerPage.name);
                     blocCore.getBlocModule<NavigatorBloc>(NavigatorBloc.name).pushNamed(MusicPlayerPage.name);
                   },
                   child: const Text("Usuarios hoja users"))

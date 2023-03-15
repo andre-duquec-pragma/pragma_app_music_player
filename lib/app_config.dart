@@ -7,8 +7,11 @@ import 'package:music_station/modules/home/ui/home_page.dart';
 import 'package:music_station/modules/home/utils/home_bloc_factory.dart';
 import 'package:music_station/modules/login/blocs/login_bloc.dart';
 import 'package:music_station/modules/login/ui/page/login_page.dart';
+import 'package:music_station/modules/music_player/bloc/favorites_songs_bloc.dart';
 import 'package:music_station/modules/music_player/bloc/music_player_bloc.dart';
+import 'package:music_station/modules/music_player/ui/pages/create_favorite_song_page.dart';
 import 'package:music_station/modules/music_player/ui/pages/music_player_page.dart';
+import 'package:music_station/modules/music_player/utils/favorites_songs_bloc_factory.dart';
 import 'package:music_station/modules/music_player/utils/music_player_bloc_factory.dart';
 import 'package:music_station/modules/not_found/ui/not_found_page.dart';
 import 'package:music_station/providers/session_service_factory.dart';
@@ -104,10 +107,14 @@ Future<void> _setSessionBasedBlocModules() async {
       HomeBlocFactory.get()
   );
 
-  blocCore.addBlocModule(
+  blocCore.addBlocModule<MusicPlayerBloc>(
       MusicPlayerBloc.name,
       await MusicPlayerBlocFactory.get()
   );
+  blocCore.addBlocModule<FavoritesSongsBloc>(
+    FavoritesSongsBloc.name, 
+    FavoritesSongsBlocFactory.get()
+    );
 }
 
 Future<void> _setSessionBasedAvailablePages() async {
@@ -116,6 +123,10 @@ Future<void> _setSessionBasedAvailablePages() async {
   Map<String, Widget> availablePages = {
     MusicPlayerPage.name : MusicPlayerPage(
       bloc: blocCore.getBlocModule<MusicPlayerBloc>(MusicPlayerBloc.name)
+    ),
+
+    CreateFavoriteSongPage.name : CreateFavoriteSongPage(
+      bloc: blocCore.getBlocModule<FavoritesSongsBloc>(FavoritesSongsBloc.name)
     ),
 
     ClassroomPage.name : const ClassroomPage()

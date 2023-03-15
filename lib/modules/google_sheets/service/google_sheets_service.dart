@@ -181,8 +181,8 @@ class GoogleSheetService implements IGoogleSheetService {
 
 
   final IGoogleSheetProvider googleSheetProvider;
-  static String sheetName = '';
-  static List<String> sheetRange = [];
+  late String sheetName = '';
+  late List<String> sheetRange = [];
 
 
   @override

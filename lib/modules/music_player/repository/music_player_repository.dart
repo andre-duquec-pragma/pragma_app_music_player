@@ -21,8 +21,8 @@ class BrandMusicPlayerRepository implements MusicPlayerRepository {
 
     var list = await service.getAllDataOfSheet(
         PlayListSong.fromJSON,
-        GoogleSheetService.sheetName,
-        '${GoogleSheetService.sheetRange.first}:${GoogleSheetService.sheetRange.last}'
+        googleSheetForPlayList.sheetName,
+        '${googleSheetForPlayList.sheetRange.first}:${googleSheetForPlayList.sheetRange.last}'
     );
 
     if (list == null) return [];
