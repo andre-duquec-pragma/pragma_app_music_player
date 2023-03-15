@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:music_station/modules/music_player/bloc/music_player_bloc.dart';
+import 'package:music_station/modules/music_player/interfaces/i_music_player_bloc.dart';
 
 import 'package:music_station/modules/music_player/ui/widgets/music_reproduction_animation_widget.dart';
-import 'package:music_station/modules/music_player/utils/music_player_resources.dart';
-import 'package:music_station/modules/music_player/utils/music_player_state.dart';
+import 'package:music_station/modules/music_player/utils/resources/music_player_resources.dart';
+import 'package:music_station/modules/music_player/utils/enums/music_player_state_enum.dart';
 
 import '../../models/music_player_model.dart';
 import '../widgets/floating_music_player_widget.dart';
@@ -13,7 +13,7 @@ class MusicPlayerPage extends StatelessWidget {
 
   static OverlayEntry? floatingMusicPlayer;
 
-  final MusicPlayerBloc bloc;
+  final IMusicPlayerBloc bloc;
 
   const MusicPlayerPage({super.key, required this.bloc});
 

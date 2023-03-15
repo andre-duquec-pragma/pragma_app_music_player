@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
-import 'package:music_station/modules/music_player/utils/video_player_visibility_state.dart';
+import 'package:music_station/modules/music_player/utils/enums/video_player_visibility_state_enum.dart';
 
-import '../../bloc/music_player_bloc.dart';
+import '../../interfaces/i_music_player_bloc.dart';
 import '../../models/music_player_model.dart';
 import 'external_video_player_widget.dart';
 import 'floating_player_buttons_widget.dart';
 import 'floating_player_information_widget.dart';
 
 class FloatingMusicPlayer extends StatefulWidget {
-  final MusicPlayerBloc bloc;
+  final IMusicPlayerBloc bloc;
 
   const FloatingMusicPlayer({super.key, required this.bloc});
 

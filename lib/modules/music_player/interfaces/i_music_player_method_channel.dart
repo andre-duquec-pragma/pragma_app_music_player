@@ -1,7 +1,7 @@
 import 'package:flutter/services.dart';
 import '../models/play_list_song_model.dart';
 
-abstract class MusicPlayerMethodChannel {
+abstract class IMusicPlayerMethodChannel {
   Future<void> prepareToReproduceInBackground(PlayListSong? currentSong);
 
   Future<void> prepareToReproduceInForeground();

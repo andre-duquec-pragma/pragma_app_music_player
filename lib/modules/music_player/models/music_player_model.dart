@@ -1,6 +1,6 @@
-import '../utils/video_player_visibility_state.dart';
+import '../utils/enums/video_player_visibility_state_enum.dart';
 import 'play_list_song_model.dart';
-import '../utils/music_player_state.dart';
+import '../utils/enums/music_player_state_enum.dart';
 
 class MusicPlayer {
   final PlayListSong? currentSong;
