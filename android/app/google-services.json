@@ -1,0 +1,46 @@
+{
+  "project_info": {
+    "project_number": "8317527032",
+    "project_id": "music-station-66c02",
+    "storage_bucket": "music-station-66c02.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:8317527032:android:0ac06db489a774b415ac0d",
+        "android_client_info": {
+          "package_name": "com.pragma.music_station"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "8317527032-32th6lse51sd2hc2sn3usvk6d76brbf5.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCL8VFwrU2i1AYgGU7KSKhUTq0R-74ZTiQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "8317527032-32th6lse51sd2hc2sn3usvk6d76brbf5.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "8317527032-ovobg1nfl90sk912gogol2luvmas1dq3.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.pragma.musicStation"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

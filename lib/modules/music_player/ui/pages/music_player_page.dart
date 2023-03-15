@@ -1,12 +1,17 @@
 import 'package:flutter/material.dart';
-import 'package:music_station/modules/music_player/interfaces/i_music_player_bloc.dart';
-
+import 'package:music_station/modules/music_player/bloc/config_sheet_favorite_song.dart';
+import 'package:music_station/modules/music_player/bloc/music_player_bloc.dart';
 import 'package:music_station/modules/music_player/ui/widgets/music_reproduction_animation_widget.dart';
-import 'package:music_station/modules/music_player/utils/resources/music_player_resources.dart';
-import 'package:music_station/modules/music_player/utils/enums/music_player_state_enum.dart';
 
+
+import '../../../../app_config.dart';
+import '../../../../blocs/navigator_bloc.dart';
+import '../../interfaces/i_music_player_bloc.dart';
 import '../../models/music_player_model.dart';
+import '../../utils/enums/music_player_state_enum.dart';
+import '../../utils/resources/music_player_resources.dart';
 import '../widgets/floating_music_player_widget.dart';
+import 'create_favorite_song_page.dart';
 
 class MusicPlayerPage extends StatelessWidget {
   static String name = "musicPlayerPage";
@@ -28,7 +33,8 @@ class MusicPlayerPage extends StatelessWidget {
             WidgetsBinding.instance.addPostFrameCallback((_) => _handleFloatingMusicPlayerState(context));
             return _buildPageBody(context, snapshot.data);
           },
-        )
+        ),
+        
     );
   }
 
@@ -53,6 +59,17 @@ class MusicPlayerPage extends StatelessWidget {
           leading: IconButton(
               icon: const Icon(Icons.arrow_back),
               onPressed: () => { bloc.goBackInNavigation() }),
+
+          actions: [
+
+            ElevatedButton.icon(
+            icon: const Icon(Icons.list),
+            label: const Text('Request List'),
+            onPressed: ()async{
+              await ConfigSheetRequestList().initConfig();
+              blocCore.getBlocModule<NavigatorBloc>(NavigatorBloc.name).pushNamed(CreateFavoriteSongPage.name);
+            })
+          ],
         ),
         body: body,
       ),
