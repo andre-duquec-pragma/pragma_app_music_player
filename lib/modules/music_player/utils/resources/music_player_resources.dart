@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:music_station/modules/music_player/utils/video_player_visibility_state.dart';
+import 'package:music_station/modules/music_player/utils/enums/video_player_visibility_state_enum.dart';
 
-import '../entities/music_player.dart';
-import 'music_player_state.dart';
+import '../../models/music_player_model.dart';
+import '../enums/music_player_state_enum.dart';
 
 class MusicPlayerResources {
 

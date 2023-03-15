@@ -7,9 +7,10 @@ import 'package:music_station/modules/home/ui/home_page.dart';
 import 'package:music_station/modules/home/utils/home_bloc_factory.dart';
 import 'package:music_station/modules/login/blocs/login_bloc.dart';
 import 'package:music_station/modules/login/ui/page/login_page.dart';
-import 'package:music_station/modules/music_player/bloc/music_player_bloc.dart';
+import 'package:music_station/modules/music_player/interfaces/i_music_player_bloc.dart';
+import 'package:music_station/modules/music_player/service/music_player_service.dart';
+import 'package:music_station/modules/music_player/utils/enums/music_player_google_sheet_setup_type_enum.dart';
 import 'package:music_station/modules/music_player/ui/pages/music_player_page.dart';
-import 'package:music_station/modules/music_player/utils/music_player_bloc_factory.dart';
 import 'package:music_station/modules/not_found/ui/not_found_page.dart';
 import 'package:music_station/providers/session_service_factory.dart';
 import 'package:music_station/services/session_service.dart';
@@ -21,6 +22,9 @@ import 'blocs/navigator_bloc.dart';
 import 'blocs/onboarding_bloc.dart';
 import 'blocs/theme_bloc.dart';
 import 'entities/entity_bloc.dart';
+import 'modules/music_player/bloc/music_player_bloc.dart';
+import 'modules/music_player/service/channel/music_player_method_channel_service.dart';
+import 'modules/music_player/utils/factories/music_player_google_sheet_setup_factory.dart';
 import 'providers/my_app_navigator_provider.dart';
 import 'services/theme_config.dart';
 import 'services/theme_service.dart';
@@ -104,11 +108,17 @@ Future<void> _setSessionBasedBlocModules() async {
       HomeBlocFactory.get()
   );
 
-  blocCore.addBlocModule(
-      MusicPlayerBloc.name,
-      await MusicPlayerBlocFactory.get()
-  );
+  blocCore.addBlocModule<IMusicPlayerBloc>(
+      IMusicPlayerBloc.name,
+      MusicPlayerBloc(
+        service: MusicPlayerService(
+          playlistGoogleSheetSetup: MusicPlayerGoogleSheetSetupFactory.get(type: MusicPlayerGoogleSheetSetupType.playlist),
+          currentSongGoogleSheetSetup: MusicPlayerGoogleSheetSetupFactory.get(type: MusicPlayerGoogleSheetSetupType.currentSong)
+        ),
+          channel: MusicPlayerMethodChannelService()
+      ));
 }
+
 
 Future<void> _setSessionBasedAvailablePages() async {
   //if (!await _sessionService.isActive) return;
@@ -121,7 +131,7 @@ Future<void> _setSessionBasedAvailablePages() async {
     ),
 
     MusicPlayerPage.name : MusicPlayerPage(
-      bloc: blocCore.getBlocModule<MusicPlayerBloc>(MusicPlayerBloc.name)
+      bloc: blocCore.getBlocModule<IMusicPlayerBloc>(IMusicPlayerBloc.name)
     ),
 
     ClassroomPage.name : const ClassroomPage()

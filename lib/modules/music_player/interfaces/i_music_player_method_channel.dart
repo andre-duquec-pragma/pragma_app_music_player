@@ -1,11 +1,10 @@
 import 'package:flutter/services.dart';
-import 'package:music_station/modules/music_player/entities/play_list_song.dart';
+import '../models/play_list_song_model.dart';
 
-abstract class MusicPlayerMethodChannel {
+abstract class IMusicPlayerMethodChannel {
   Future<void> prepareToReproduceInBackground(PlayListSong? currentSong);
 
   Future<void> prepareToReproduceInForeground();
 
   Future<void> onListenerPlayer(Function(MethodCall call) functionCallback);
-
 }

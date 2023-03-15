@@ -1,13 +1,13 @@
 import 'package:flutter/cupertino.dart';
 
-import '../../bloc/music_player_bloc.dart';
-import '../../entities/music_player.dart';
-import '../../utils/music_player_resources.dart';
+import '../../interfaces/i_music_player_bloc.dart';
+import '../../models/music_player_model.dart';
+import '../../utils/resources/music_player_resources.dart';
 
 class FloatingPlayerButtonsWidget extends StatelessWidget {
 
   final bool _isMusicPlayerReady;
-  final MusicPlayerBloc _bloc;
+  final IMusicPlayerBloc _bloc;
   final MusicPlayer? _data;
 
   const FloatingPlayerButtonsWidget({super.key, required isMusicPlayerReady, required bloc, data})
