@@ -1,8 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:music_station/modules/music_player/bloc/config/config_sheet_favorite_song.dart';
-import 'package:music_station/modules/music_player/bloc/music_player_bloc.dart';
 import 'package:music_station/modules/music_player/ui/widgets/music_reproduction_animation_widget.dart';
-
 
 import '../../../../app_config.dart';
 import '../../../../blocs/navigator_bloc.dart';
@@ -11,7 +8,8 @@ import '../../models/music_player_model.dart';
 import '../../utils/enums/music_player_state_enum.dart';
 import '../../utils/resources/music_player_resources.dart';
 import '../widgets/floating_music_player_widget.dart';
-import 'create_favorite_song_page.dart';
+import 'create_song_request_page.dart';
+
 
 class MusicPlayerPage extends StatelessWidget {
   static String name = "musicPlayerPage";
@@ -26,15 +24,15 @@ class MusicPlayerPage extends StatelessWidget {
   Widget build(BuildContext context) {
     bloc.start();
     return _buildPage(
-        context: context,
-        body: StreamBuilder(
-          stream: bloc.stream,
-          builder: (context, AsyncSnapshot<MusicPlayer> snapshot) {
-            WidgetsBinding.instance.addPostFrameCallback((_) => _handleFloatingMusicPlayerState(context));
-            return _buildPageBody(context, snapshot.data);
-          },
-        ),
-        
+      context: context,
+      body: StreamBuilder(
+        stream: bloc.stream,
+        builder: (context, AsyncSnapshot<MusicPlayer> snapshot) {
+          WidgetsBinding.instance.addPostFrameCallback(
+              (_) => _handleFloatingMusicPlayerState(context));
+          return _buildPageBody(context, snapshot.data);
+        },
+      ),
     );
   }
 
@@ -42,14 +40,10 @@ class MusicPlayerPage extends StatelessWidget {
     return Container(
       decoration: BoxDecoration(
           gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [
-              Colors.deepPurple.shade400,
-              Colors.deepPurple.shade800
-            ],
-          )
-      ),
+        begin: Alignment.topCenter,
+        end: Alignment.bottomCenter,
+        colors: [Colors.deepPurple.shade400, Colors.deepPurple.shade800],
+      )),
       child: Scaffold(
         backgroundColor: Colors.transparent,
         appBar: AppBar(
@@ -58,17 +52,16 @@ class MusicPlayerPage extends StatelessWidget {
           title: const Text('Music player'),
           leading: IconButton(
               icon: const Icon(Icons.arrow_back),
-              onPressed: () => { bloc.goBackInNavigation() }),
-
+              onPressed: () => {bloc.goBackInNavigation()}),
           actions: [
-
             ElevatedButton.icon(
-            icon: const Icon(Icons.list),
-            label: const Text('Request List'),
-            onPressed: ()async{
-              await ConfigSheetRequestList().initConfig();
-              blocCore.getBlocModule<NavigatorBloc>(NavigatorBloc.name).pushNamed(CreateFavoriteSongPage.name);
-            })
+                icon: const Icon(Icons.list),
+                label: const Text('Request List'),
+                onPressed: () {
+                  blocCore
+                      .getBlocModule<NavigatorBloc>(NavigatorBloc.name)
+                      .pushNamed(CreateSongRequestPage.name);
+                })
           ],
         ),
         body: body,
@@ -81,19 +74,17 @@ class MusicPlayerPage extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.start,
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
-
-        Image.asset("assets/music-illustration.png", height: MediaQuery.of(context).size.height * 0.4),
-
+        Image.asset("assets/music-illustration.png",
+            height: MediaQuery.of(context).size.height * 0.4),
         _buildPlaylistPresentation(context, musicPlayer),
-
         const SizedBox(height: 12),
-
         _buildPlayList(),
       ],
     );
   }
 
-  Widget _buildPlaylistPresentation(BuildContext context, MusicPlayer? musicPlayer) {
+  Widget _buildPlaylistPresentation(
+      BuildContext context, MusicPlayer? musicPlayer) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20),
       child: Column(
@@ -107,18 +98,19 @@ class MusicPlayerPage extends StatelessWidget {
                 child: Text(
                   "Welcome to Pragma Music Player",
                   style: TextStyle(
-                      fontSize: Theme.of(context).textTheme.headlineSmall?.fontSize ?? 12,
-                      color: Colors.white
-                  ),
+                      fontSize:
+                          Theme.of(context).textTheme.headlineSmall?.fontSize ??
+                              12,
+                      color: Colors.white),
                   overflow: TextOverflow.clip,
                 ),
               ),
-
               SizedBox(width: MediaQuery.of(context).size.width * 0.1),
-
               ElevatedButton(
                 onPressed: () {
-                  (musicPlayer?.isActive ?? false) ? bloc.close() : bloc.start();
+                  (musicPlayer?.isActive ?? false)
+                      ? bloc.close()
+                      : bloc.start();
                 },
                 style: ElevatedButton.styleFrom(
                   shape: const CircleBorder(),
@@ -127,15 +119,12 @@ class MusicPlayerPage extends StatelessWidget {
                   foregroundColor: Colors.deepPurple,
                 ),
                 child: Icon(
-                    MusicPlayerResources.getActivationButtonIconBasedOnState(musicPlayer)
-                ),
+                    MusicPlayerResources.getActivationButtonIconBasedOnState(
+                        musicPlayer)),
               )
-
             ],
           ),
-
           const SizedBox(height: 30),
-
           Text(
             "Playlist",
             style: TextStyle(
@@ -170,29 +159,32 @@ class MusicPlayerPage extends StatelessWidget {
                       Text(
                         bloc.playlist[index].songName,
                         style: TextStyle(
-                            fontSize: Theme.of(context).textTheme.titleMedium?.fontSize ?? 12,
+                            fontSize: Theme.of(context)
+                                    .textTheme
+                                    .titleMedium
+                                    ?.fontSize ??
+                                12,
                             fontWeight: FontWeight.bold,
-                            color: Colors.white
-                        ),
+                            color: Colors.white),
                       ),
-
                       Text(
                         "Artist",
                         style: TextStyle(
-                            fontSize: Theme.of(context).textTheme.titleSmall?.fontSize ?? 12,
-                            color: Colors.white60
-                        ),
+                            fontSize: Theme.of(context)
+                                    .textTheme
+                                    .titleSmall
+                                    ?.fontSize ??
+                                12,
+                            color: Colors.white60),
                       )
                     ],
                   ),
                   trailing: _buildReproductionAnimation(
-                      isSongActive:  bloc.playlist[index].isPlaying && bloc.value.state == MusicPlayerState.playing
-                  ),
+                      isSongActive: bloc.playlist[index].isPlaying &&
+                          bloc.value.state == MusicPlayerState.playing),
                 ),
               );
-            }
-        )
-    );
+            }));
   }
 
   Widget _buildReproductionAnimation({required bool isSongActive}) {
@@ -219,9 +211,8 @@ class MusicPlayerPage extends StatelessWidget {
   }
 
   void _showFloatingMusicPlayer(BuildContext context) {
-    floatingMusicPlayer = OverlayEntry(
-        builder: (context) => FloatingMusicPlayer(bloc: bloc)
-    );
+    floatingMusicPlayer =
+        OverlayEntry(builder: (context) => FloatingMusicPlayer(bloc: bloc));
 
     OverlayState overlay = Overlay.of(context);
     overlay.insert(floatingMusicPlayer!);

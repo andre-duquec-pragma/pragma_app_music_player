@@ -1,13 +1,13 @@
 
 
-class FavoriteSong {
-  int? indexRow;
-  String urlYoutube;
-  String songName;
-  String idPragmatic;
-  String message;
+class SongRequest {
+  final int? indexRow;
+  final String urlYoutube;
+  final String songName;
+  final String idPragmatic;
+  final String message;
 
-  FavoriteSong({
+  SongRequest({
     this.indexRow,
     required this.urlYoutube,
     required this.songName,
@@ -15,14 +15,14 @@ class FavoriteSong {
     required this.message,
   });
 
-  Map<String, String?> tojson(List<String> comment) => {
+  Map<String, String?> toJson(List<String> comment) => {
         songName: songName,
         urlYoutube: urlYoutube,
         idPragmatic:idPragmatic,
         message: message,
       };
 
-  static FavoriteSong fromJson(Map<String, dynamic> json, List<String> comment) => FavoriteSong(
+  static SongRequest fromJson(Map<String, dynamic> json, List<String> comment) => SongRequest(
       indexRow: int.parse(json['indexRow']),
       urlYoutube: json['urlYoutube'],
       songName: json['songName'],

@@ -7,10 +7,8 @@ import 'package:music_station/modules/home/ui/home_page.dart';
 import 'package:music_station/modules/home/utils/home_bloc_factory.dart';
 import 'package:music_station/modules/login/blocs/login_bloc.dart';
 import 'package:music_station/modules/login/ui/page/login_page.dart';
-import 'package:music_station/modules/music_player/bloc/favorites_songs_bloc.dart';
 import 'package:music_station/modules/music_player/bloc/music_player_bloc.dart';
-import 'package:music_station/modules/music_player/interfaces/i_favorite_song_bloc.dart';
-import 'package:music_station/modules/music_player/ui/pages/create_favorite_song_page.dart';
+import 'package:music_station/modules/music_player/ui/pages/create_song_request_page.dart';
 import 'package:music_station/modules/music_player/ui/pages/music_player_page.dart';
 import 'package:music_station/modules/not_found/ui/not_found_page.dart';
 import 'package:music_station/providers/session_service_factory.dart';
@@ -23,13 +21,14 @@ import 'blocs/navigator_bloc.dart';
 import 'blocs/onboarding_bloc.dart';
 import 'blocs/theme_bloc.dart';
 import 'entities/entity_bloc.dart';
-import 'modules/music_player/bloc/music_player_bloc.dart';
+import 'modules/music_player/bloc/songs_request_bloc.dart';
 import 'modules/music_player/interfaces/i_music_player_bloc.dart';
+import 'modules/music_player/interfaces/i_songs_request_bloc.dart';
 import 'modules/music_player/service/channel/music_player_method_channel_service.dart';
 import 'modules/music_player/service/music_player_service.dart';
-import 'modules/music_player/utils/enums/music_player_google_sheet_setup_type_enum.dart';
-import 'modules/music_player/utils/factories/music_player_google_sheet_setup_factory.dart';
-import 'modules/music_player/utils/favorites_songs_bloc_factory.dart';
+import 'modules/music_player/service/song_request_service.dart';
+import 'modules/music_player/utils/enums/music_player_google_sheet_config_type_enum.dart';
+import 'modules/music_player/utils/factories/music_player_google_sheet_config_factory.dart';
 import 'providers/my_app_navigator_provider.dart';
 import 'services/theme_config.dart';
 import 'services/theme_service.dart';
@@ -63,8 +62,8 @@ Future<void> _setDefaultBlocModules() async {
   );
 
   blocCore.addBlocModule(
-      OnboardingBloc.name,
-      _createOnBoardingBloc(),
+    OnboardingBloc.name,
+    _createOnBoardingBloc(),
   );
 
   blocCore.addBlocModule<ThemeBloc>(
@@ -82,9 +81,9 @@ Future<void> _setDefaultBlocModules() async {
       myPageManager,
       MyOnboardingPage(
         onboardingBloc:
-        blocCore.getBlocModule<OnboardingBloc>(OnboardingBloc.name),
+            blocCore.getBlocModule<OnboardingBloc>(OnboardingBloc.name),
         responsiveBloc:
-        blocCore.getBlocModule<ResponsiveBloc>(ResponsiveBloc.name),
+            blocCore.getBlocModule<ResponsiveBloc>(ResponsiveBloc.name),
       ),
     ),
   );
@@ -103,55 +102,49 @@ Future<void> _setSessionBasedBlocModules() async {
     return;
   }
 */
-  blocCore.addBlocModule<GoogleSignInBloc>(
-      GoogleSignInBloc.name,
-      GoogleSignInBloc(googleSignInService: GoogleSignInService())
-  );
+  blocCore.addBlocModule<GoogleSignInBloc>(GoogleSignInBloc.name,
+      GoogleSignInBloc(googleSignInService: GoogleSignInService()));
 
-  blocCore.addBlocModule<HomeBloc>(
-      HomeBloc.name,
-      HomeBlocFactory.get()
-  );
+  blocCore.addBlocModule<HomeBloc>(HomeBloc.name, HomeBlocFactory.get());
 
   blocCore.addBlocModule<IMusicPlayerBloc>(
       IMusicPlayerBloc.name,
       MusicPlayerBloc(
-        service: MusicPlayerService(
-          playlistGoogleSheetSetup: MusicPlayerGoogleSheetSetupFactory.get(type: MusicPlayerGoogleSheetSetupType.playlist),
-          currentSongGoogleSheetSetup: MusicPlayerGoogleSheetSetupFactory.get(type: MusicPlayerGoogleSheetSetupType.currentSong)
+          service: MusicPlayerService(
+              playlistGoogleSheetSetup: MusicPlayerGoogleSheetConfigFactory.get(
+                  type: MusicPlayerGoogleSheetConfigType.playlist),
+              currentSongGoogleSheetSetup:
+                  MusicPlayerGoogleSheetConfigFactory.get(
+                      type: MusicPlayerGoogleSheetConfigType.currentSong)),
+          channel: MusicPlayerMethodChannelService()));
+
+  blocCore.addBlocModule<ISongsRequestBloc>(
+      ISongsRequestBloc.name,
+      SongsRequestBloc(
+        SongsRequestService(
+          songRequestGoogleSheetConfig: MusicPlayerGoogleSheetConfigFactory.get(
+              type: MusicPlayerGoogleSheetConfigType.songRequest),
         ),
-          channel: MusicPlayerMethodChannelService()
       ));
-
-  blocCore.addBlocModule<IFavoritesSongsBloc>(
-    IFavoritesSongsBloc.name, 
-    FavoritesSongsBlocFactory.get()
-    );
 }
-
 
 Future<void> _setSessionBasedAvailablePages() async {
   //if (!await _sessionService.isActive) return;
 
   Map<String, Widget> availablePages = {
-
-    HomePage.name : HomePage(
-      user: await _sessionService.currentUser,
-      bloc: blocCore.getBlocModule<HomeBloc>(HomeBloc.name)
-    ),
-
-    MusicPlayerPage.name : MusicPlayerPage(
-      bloc: blocCore.getBlocModule<IMusicPlayerBloc>(IMusicPlayerBloc.name)
-    ),
-
-    CreateFavoriteSongPage.name : CreateFavoriteSongPage(
-      bloc: blocCore.getBlocModule<IFavoritesSongsBloc>(IFavoritesSongsBloc.name)
-    ),
-
-    ClassroomPage.name : const ClassroomPage()
+    HomePage.name: HomePage(
+        user: await _sessionService.currentUser,
+        bloc: blocCore.getBlocModule<HomeBloc>(HomeBloc.name)),
+    MusicPlayerPage.name: MusicPlayerPage(
+        bloc: blocCore.getBlocModule<IMusicPlayerBloc>(IMusicPlayerBloc.name)),
+    CreateSongRequestPage.name: CreateSongRequestPage(
+        bloc:
+            blocCore.getBlocModule<ISongsRequestBloc>(ISongsRequestBloc.name)),
+    ClassroomPage.name: const ClassroomPage()
   };
 
-  blocCore.getBlocModule<NavigatorBloc>(NavigatorBloc.name)
+  blocCore
+      .getBlocModule<NavigatorBloc>(NavigatorBloc.name)
       .addPagesForDynamicLinksDirectory(availablePages);
 }
 
@@ -161,11 +154,9 @@ OnboardingBloc _createOnBoardingBloc() {
       () async {
         blocCore
             .getBlocModule<NavigatorBloc>(NavigatorBloc.name)
-            .setHomePage( await _getInitialPage() );
+            .setHomePage(await _getInitialPage());
 
-        blocCore
-            .getBlocModule<NavigatorBloc>(NavigatorBloc.name)
-            .update();
+        blocCore.getBlocModule<NavigatorBloc>(NavigatorBloc.name).update();
       }
     ],
   );
@@ -173,18 +164,16 @@ OnboardingBloc _createOnBoardingBloc() {
 
 Future<Widget> _getInitialPage() async {
   try {
-    if(!await _sessionService.isActive) {
+    if (!await _sessionService.isActive) {
       return LoginPage(
-          bloc: blocCore.getBlocModule<GoogleSignInBloc>(GoogleSignInBloc.name)
-      );
+          bloc:
+              blocCore.getBlocModule<GoogleSignInBloc>(GoogleSignInBloc.name));
     }
 
     return HomePage(
-      user: await _sessionService.currentUser,
-      bloc: blocCore.getBlocModule<HomeBloc>(HomeBloc.name)
-    );
-
-  } catch(_) {
+        user: await _sessionService.currentUser,
+        bloc: blocCore.getBlocModule<HomeBloc>(HomeBloc.name));
+  } catch (_) {
     return const NotFoundPage();
   }
 }

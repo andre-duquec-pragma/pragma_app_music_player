@@ -6,25 +6,25 @@ import '../models/current_song_model.dart';
 
 class MusicPlayerService implements IMusicPlayerService {
 
-  final GoogleSheetConfig _playlistGoogleSheetSetup;
-  final GoogleSheetConfig _currentSongGoogleSheetSetup;
+  final GoogleSheetConfig _playlistGoogleSheetConfig;
+  final GoogleSheetConfig _currentSongGoogleSheetConfig;
 
   MusicPlayerService({
     required GoogleSheetConfig playlistGoogleSheetSetup,
     required GoogleSheetConfig currentSongGoogleSheetSetup,
   })
-      : _playlistGoogleSheetSetup = playlistGoogleSheetSetup,
-        _currentSongGoogleSheetSetup = currentSongGoogleSheetSetup;
+      : _playlistGoogleSheetConfig = playlistGoogleSheetSetup,
+        _currentSongGoogleSheetConfig = currentSongGoogleSheetSetup;
 
 
   @override
   Future<int?> getCurrentSongId() async {
-    await _currentSongGoogleSheetSetup.initConfig();
+    await _currentSongGoogleSheetConfig.initConfig();
 
-    List<dynamic>? list = await _currentSongGoogleSheetSetup.service.getAllDataOfSheet(
+    List<dynamic>? list = await _currentSongGoogleSheetConfig.service.getAllDataOfSheet(
         CurrentSong.fromJSON,
-        _currentSongGoogleSheetSetup.service.sheetName,
-        '${_currentSongGoogleSheetSetup.service.sheetRange.first}:${_currentSongGoogleSheetSetup.service.sheetRange.last}'
+        _currentSongGoogleSheetConfig.service.sheetName,
+        '${_currentSongGoogleSheetConfig.service.sheetRange.first}:${_currentSongGoogleSheetConfig.service.sheetRange.last}'
     );
 
     if (list == null) return null;
@@ -34,12 +34,12 @@ class MusicPlayerService implements IMusicPlayerService {
 
   @override
   Future<List<PlayListSong>> getPlaylist() async {
-    await _playlistGoogleSheetSetup.initConfig();
+    await _playlistGoogleSheetConfig.initConfig();
 
-    List<dynamic>? list = await _playlistGoogleSheetSetup.service.getAllDataOfSheet(
+    List<dynamic>? list = await _playlistGoogleSheetConfig.service.getAllDataOfSheet(
         PlayListSong.fromJSON,
-        _playlistGoogleSheetSetup.service.sheetName,
-        '${_playlistGoogleSheetSetup.service.sheetRange.first}:${_playlistGoogleSheetSetup.service.sheetRange.last}'
+        _playlistGoogleSheetConfig.service.sheetName,
+        '${_playlistGoogleSheetConfig.service.sheetRange.first}:${_playlistGoogleSheetConfig.service.sheetRange.last}'
     );
 
     if (list == null) return [];

@@ -1,4 +1,0 @@
-enum MusicPlayerGoogleSheetSetupType {
-  playlist,
-  currentSong;
-}

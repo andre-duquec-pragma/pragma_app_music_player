@@ -1,15 +1,9 @@
-
 import 'package:flutter/material.dart';
-import 'package:google_sign_in/google_sign_in.dart';
-import 'package:music_station/modules/music_player/ui/pages/create_favorite_song_page.dart';
 import 'package:music_station/modules/music_player/ui/pages/music_player_page.dart';
-import 'package:package_google_sign_in/service/service_google_sign_in.dart';
 
 import '../../../../app_config.dart';
 import '../../../../blocs/navigator_bloc.dart';
-import '../../../home/ui/home_page.dart';
 import '../../blocs/login_bloc.dart';
-
 
 class LoginPage extends StatefulWidget {
   static String name = "loginPage";
@@ -21,7 +15,6 @@ class LoginPage extends StatefulWidget {
   State<LoginPage> createState() => _LoginPageState();
 }
 
-
 class _LoginPageState extends State<LoginPage> {
   @override
   void initState() {
@@ -29,7 +22,6 @@ class _LoginPageState extends State<LoginPage> {
     widget.bloc.listenChangeInfoUser();
     widget.bloc.signInSilently();
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -44,7 +36,9 @@ class _LoginPageState extends State<LoginPage> {
               const Text('Signed in successfully.'),
               ElevatedButton(
                   onPressed: () {
-                    blocCore.getBlocModule<NavigatorBloc>(NavigatorBloc.name).pushNamed(MusicPlayerPage.name);
+                    blocCore
+                        .getBlocModule<NavigatorBloc>(NavigatorBloc.name)
+                        .pushNamed(MusicPlayerPage.name);
                   },
                   child: const Text("Home"))
             ],
@@ -65,6 +59,3 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 }
-
-
-

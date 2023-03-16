@@ -1,17 +1,17 @@
 import 'package:flutter/material.dart';
-import 'package:music_station/modules/music_player/interfaces/i_favorite_song_bloc.dart';
 import 'package:music_station/modules/music_player/ui/widgets/text_field_custom_widget.dart';
 
 import '../../../../app_config.dart';
 import '../../../../blocs/navigator_bloc.dart';
+import '../../interfaces/i_songs_request_bloc.dart';
 
-class CreateFavoriteSongPage extends StatelessWidget {
+class CreateSongRequestPage extends StatelessWidget {
 
   static String name = "createFavoriteSongPage";
 
-  final IFavoritesSongsBloc bloc;
+  final ISongsRequestBloc bloc;
 
-  const CreateFavoriteSongPage({super.key, required this.bloc});
+  const CreateSongRequestPage({super.key, required this.bloc});
 
   @override
   Widget build(BuildContext context) {
@@ -73,7 +73,7 @@ class CreateFavoriteSongPage extends StatelessWidget {
             ),
             GestureDetector(
               onTap: (){
-                bloc.createFavoriteSong();
+                bloc.createSongRequest();
               },
               child: Container(
                 width: MediaQuery.of(context).size.width * 0.7,
