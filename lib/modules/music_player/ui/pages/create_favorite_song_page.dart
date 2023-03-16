@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:music_station/modules/music_player/bloc/favorites_songs_bloc.dart';
+import 'package:music_station/modules/music_player/interfaces/i_favorite_song_bloc.dart';
+import 'package:music_station/modules/music_player/ui/widgets/text_field_custom_widget.dart';
 
 import '../../../../app_config.dart';
 import '../../../../blocs/navigator_bloc.dart';
@@ -8,7 +9,7 @@ class CreateFavoriteSongPage extends StatelessWidget {
 
   static String name = "createFavoriteSongPage";
 
-  final FavoritesSongsBloc bloc;
+  final IFavoritesSongsBloc bloc;
 
   const CreateFavoriteSongPage({super.key, required this.bloc});
 
@@ -31,35 +32,41 @@ class CreateFavoriteSongPage extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           
           children: [
-            TextField(
-              controller: bloc.urlYoutubeController,
-              obscureText: false,
-              decoration: const InputDecoration(
-                border: OutlineInputBorder(),
-                labelText: 'Url Youtube'
-              ),
+            TextFieldCustom(
+              controller: bloc.urlYoutubeController, 
+              hintText: 'Url', 
+              validator: (value){
+                if(value!.isEmpty){
+                  return 'Requiere el campo name';
+                }if(value.trim().isEmpty){
+                  return 'No se acepta solo espacios';
+                }
+                return null;
+              }
             ),
-            const SizedBox(
-              height: 15,
+            TextFieldCustom(
+              controller: bloc.songNameController, 
+              hintText: 'Song Name', 
+              validator: (value){
+                if(value!.isEmpty){
+                  return 'Requiere el campo name';
+                }if(value.trim().isEmpty){
+                  return 'No se acepta solo espacios';
+                }
+                return null;
+              }
             ),
-            TextField(
-              controller: bloc.songNameController,
-              obscureText: false,
-              decoration: const InputDecoration(
-                border: OutlineInputBorder(),
-                labelText: 'Song Name'
-              ),
-            ),
-            const SizedBox(
-              height: 15,
-            ),
-            TextField(
-              controller: bloc.messageController,
-              obscureText: false,
-              decoration: const InputDecoration(
-                border: OutlineInputBorder(),
-                labelText: 'Mensaje'
-              ),
+            TextFieldCustom(
+              controller: bloc.messageController, 
+              hintText: 'Message', 
+              validator: (value){
+                if(value!.isEmpty){
+                  return 'Requiere el campo name';
+                }if(value.trim().isEmpty){
+                  return 'No se acepta solo espacios';
+                }
+                return null;
+              }
             ),
             const SizedBox(
               height: 15,

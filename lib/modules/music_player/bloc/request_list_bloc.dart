@@ -1,15 +1,15 @@
 import 'dart:async';
 import 'package:music_station/entities/entity_bloc.dart';
 
-import '../models/favorite_song.dart';
+import '../models/favorite_song_model.dart';
 
 
 abstract class RequestListBloc extends BlocModule {
   static String name = "requestListBloc";
 
-    Stream<RequestList> get stream;
+    Stream<FavoriteSong> get stream;
 
-    List<RequestList> get playlist;
+    List<FavoriteSong> get playlist;
 
 
 }
@@ -28,11 +28,11 @@ class BrandRequestListBloc implements RequestListBloc {
   
   @override
   // TODO: implement playlist
-  List<RequestList> get playlist => throw UnimplementedError();
+  List<FavoriteSong> get playlist => throw UnimplementedError();
   
   @override
   // TODO: implement stream
-  Stream<RequestList> get stream => throw UnimplementedError();
+  Stream<FavoriteSong> get stream => throw UnimplementedError();
   
 }
 

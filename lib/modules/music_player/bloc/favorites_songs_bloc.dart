@@ -1,23 +1,16 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:music_station/entities/entity_bloc.dart';
-import 'package:music_station/modules/music_player/bloc/config_sheet_favorite_song.dart';
+import 'package:music_station/modules/music_player/bloc/config/config_sheet_favorite_song.dart';
 
-import '../models/favorite_song.dart';
+import '../interfaces/i_favorite_song_bloc.dart';
+import '../models/favorite_song_model.dart';
 
-abstract class FavoritesSongsBloc extends BlocModule {
-  static String name = "favoritesSongdBloc";
 
-  Future <void> createFavoriteSong();
 
-  late TextEditingController urlYoutubeController ;
-  late TextEditingController songNameController ;
-  late TextEditingController messageController ;
-}
+class FavoritesSongBloc implements IFavoritesSongsBloc{
 
-class BrandFavoritesSongBloc implements FavoritesSongsBloc{
-
-  BrandFavoritesSongBloc()
+  FavoritesSongBloc()
   :
   urlYoutubeController = TextEditingController(), 
   messageController = TextEditingController(), 
@@ -26,7 +19,7 @@ class BrandFavoritesSongBloc implements FavoritesSongsBloc{
 
   @override
   Future <void> createFavoriteSong() async{
-    RequestList requestList = RequestList(
+    FavoriteSong requestList = FavoriteSong(
       songName: songNameController.value.text.trimLeft(), 
       urlYoutube: urlYoutubeController.value.text.trimLeft(), 
       idPragmatic: '4', 

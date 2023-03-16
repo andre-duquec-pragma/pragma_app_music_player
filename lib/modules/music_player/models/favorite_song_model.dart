@@ -1,13 +1,13 @@
 
 
-class RequestList {
+class FavoriteSong {
   int? indexRow;
   String urlYoutube;
   String songName;
   String idPragmatic;
   String message;
 
-  RequestList({
+  FavoriteSong({
     this.indexRow,
     required this.urlYoutube,
     required this.songName,
@@ -22,7 +22,7 @@ class RequestList {
         message: message,
       };
 
-  static RequestList fromJson(Map<String, dynamic> json, List<String> comment) => RequestList(
+  static FavoriteSong fromJson(Map<String, dynamic> json, List<String> comment) => FavoriteSong(
       indexRow: int.parse(json['indexRow']),
       urlYoutube: json['urlYoutube'],
       songName: json['songName'],

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:music_station/modules/music_player/bloc/config_sheet_favorite_song.dart';
+import 'package:music_station/modules/music_player/bloc/config/config_sheet_favorite_song.dart';
 import 'package:music_station/modules/music_player/bloc/music_player_bloc.dart';
 import 'package:music_station/modules/music_player/ui/widgets/music_reproduction_animation_widget.dart';
 
